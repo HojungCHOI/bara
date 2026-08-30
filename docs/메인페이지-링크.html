@@ -1,0 +1,83 @@
+<!--
+  signes.kr 메인페이지에 붙여넣을 링크 코드입니다.
+  아래 세 가지 중 원하는 모양을 골라서 쓰세요.
+  이 파일 자체는 올릴 필요 없습니다. 코드만 복사하시면 됩니다.
+-->
+
+
+<!-- ============================================================
+     1) 가장 간단한 링크 — 메뉴나 목록 안에 한 줄로
+     ============================================================ -->
+
+<a href="/app/biblehelper/">성경 찬송가 헬퍼</a>
+
+
+<!-- ============================================================
+     2) 카드 형태 — 메인페이지 본문에 눈에 띄게
+        (스타일이 이미 있는 사이트라면 class 만 바꿔 쓰세요)
+     ============================================================ -->
+
+<a class="app-card" href="/app/biblehelper/">
+  <span class="app-card__icon" aria-hidden="true">
+    <svg viewBox="0 0 512 512" width="44" height="44">
+      <rect width="512" height="512" rx="112" fill="#12161f"/>
+      <path d="M96 154c48-20 104-20 152 6v210c-48-26-104-26-152-6z" fill="#6ea8fe" opacity=".92"/>
+      <path d="M416 154c-48-20-104-20-152 6v210c48-26 104-26 152-6z" fill="#3d82f7" opacity=".92"/>
+      <path d="M256 160v210" stroke="#12161f" stroke-width="14" stroke-linecap="round"/>
+      <g stroke="#eef2f9" stroke-width="16" stroke-linecap="round" opacity=".85">
+        <path d="M150 250v28"/><path d="M196 232v64"/><path d="M316 232v64"/><path d="M362 250v28"/>
+      </g>
+    </svg>
+  </span>
+  <span class="app-card__body">
+    <strong class="app-card__title">성경 찬송가 헬퍼</strong>
+    <span class="app-card__desc">
+      예배 중 들리는 찬송과 성경 본문을 마이크로 듣고 찾아 줍니다
+    </span>
+  </span>
+</a>
+
+<style>
+/* 카드 형태를 쓸 때만 함께 넣으세요. 이미 있는 스타일과 겹치면 class 이름을 바꾸면 됩니다. */
+.app-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 480px;
+  padding: 16px 18px;
+  border: 1px solid #d9e0ea;
+  border-radius: 14px;
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+.app-card:hover {
+  border-color: #3d82f7;
+  box-shadow: 0 6px 18px rgba(61, 130, 247, .14);
+  transform: translateY(-1px);
+}
+.app-card__icon { flex: 0 0 auto; display: flex; }
+.app-card__body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.app-card__title { font-size: 1.05rem; font-weight: 700; }
+.app-card__desc { color: #5d6a80; font-size: .9rem; line-height: 1.5; word-break: keep-all; }
+
+@media (prefers-color-scheme: dark) {
+  .app-card { border-color: #303a4d; background: #1b212e; }
+  .app-card__desc { color: #9aa7bd; }
+}
+</style>
+
+
+<!-- ============================================================
+     3) 목록 안에 넣을 때 — 다른 앱들과 나란히
+     ============================================================ -->
+
+<ul class="app-list">
+  <li>
+    <a href="/app/biblehelper/">
+      <strong>성경 찬송가 헬퍼</strong>
+      — 예배 중 찬송가·성경 본문을 마이크로 찾아 줍니다
+    </a>
+  </li>
+</ul>
