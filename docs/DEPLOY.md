@@ -7,7 +7,7 @@
 ## 1. 올릴 파일 추리기
 
 ```bash
-sh scripts/build-dist.sh
+npm run dist
 ```
 
 `dist/` 폴더가 만들어집니다. 실제 서비스에 필요한 15개 파일만 들어 있고,

@@ -89,6 +89,16 @@ rsync -av --exclude='.git' --exclude='node_modules' --exclude='test' \
       ./ 서버:/var/www/signes.kr/app/biblehelper/
 ```
 
+## 문서
+
+| 문서 | 내용 |
+|---|---|
+| [노트북에서 이어서 작업하기](docs/노트북에서-이어서-작업하기.md) | 다른 컴퓨터에서 내려받아 이어서 개발하는 방법 |
+| [현재 상태와 다음 할 일](docs/현재상태.md) | 어디까지 했고 무엇이 남았는지 |
+| [배포 방법](docs/DEPLOY.md) | FTP로 signes.kr에 올리는 절차 |
+| [데이터 형식](docs/DATA.md) | 찬송가·성경 파일 형식 |
+| [메인페이지 링크 코드](docs/메인페이지-링크.html) | 메인페이지에 붙여넣을 HTML |
+
 ## 라이선스
 
 코드는 MIT. 사용자가 직접 넣는 찬송가·성경 데이터는 각 저작권자의 것입니다.
