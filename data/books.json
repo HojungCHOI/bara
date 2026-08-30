@@ -1,0 +1,832 @@
+{
+  "note": "성경 66권의 구조 정보(권 이름/약칭/장 수)입니다. 본문 텍스트는 포함되어 있지 않습니다.",
+  "books": [
+    {
+      "id": "gen",
+      "order": 1,
+      "name": "창세기",
+      "abbr": "창",
+      "chapters": 50,
+      "testament": "old",
+      "aliases": [
+        "창세기",
+        "창",
+        "창세"
+      ]
+    },
+    {
+      "id": "exo",
+      "order": 2,
+      "name": "출애굽기",
+      "abbr": "출",
+      "chapters": 40,
+      "testament": "old",
+      "aliases": [
+        "출애굽기",
+        "출",
+        "출애굽"
+      ]
+    },
+    {
+      "id": "lev",
+      "order": 3,
+      "name": "레위기",
+      "abbr": "레",
+      "chapters": 27,
+      "testament": "old",
+      "aliases": [
+        "레위기",
+        "레"
+      ]
+    },
+    {
+      "id": "num",
+      "order": 4,
+      "name": "민수기",
+      "abbr": "민",
+      "chapters": 36,
+      "testament": "old",
+      "aliases": [
+        "민수기",
+        "민"
+      ]
+    },
+    {
+      "id": "deu",
+      "order": 5,
+      "name": "신명기",
+      "abbr": "신",
+      "chapters": 34,
+      "testament": "old",
+      "aliases": [
+        "신명기",
+        "신"
+      ]
+    },
+    {
+      "id": "jos",
+      "order": 6,
+      "name": "여호수아",
+      "abbr": "수",
+      "chapters": 24,
+      "testament": "old",
+      "aliases": [
+        "여호수아",
+        "수",
+        "여호수아기"
+      ]
+    },
+    {
+      "id": "jdg",
+      "order": 7,
+      "name": "사사기",
+      "abbr": "삿",
+      "chapters": 21,
+      "testament": "old",
+      "aliases": [
+        "사사기",
+        "삿",
+        "사사"
+      ]
+    },
+    {
+      "id": "rut",
+      "order": 8,
+      "name": "룻기",
+      "abbr": "룻",
+      "chapters": 4,
+      "testament": "old",
+      "aliases": [
+        "룻기",
+        "룻"
+      ]
+    },
+    {
+      "id": "1sa",
+      "order": 9,
+      "name": "사무엘상",
+      "abbr": "삼상",
+      "chapters": 31,
+      "testament": "old",
+      "aliases": [
+        "사무엘상",
+        "삼상",
+        "사무엘상권",
+        "삼상서"
+      ]
+    },
+    {
+      "id": "2sa",
+      "order": 10,
+      "name": "사무엘하",
+      "abbr": "삼하",
+      "chapters": 24,
+      "testament": "old",
+      "aliases": [
+        "사무엘하",
+        "삼하",
+        "사무엘하권"
+      ]
+    },
+    {
+      "id": "1ki",
+      "order": 11,
+      "name": "열왕기상",
+      "abbr": "왕상",
+      "chapters": 22,
+      "testament": "old",
+      "aliases": [
+        "열왕기상",
+        "왕상"
+      ]
+    },
+    {
+      "id": "2ki",
+      "order": 12,
+      "name": "열왕기하",
+      "abbr": "왕하",
+      "chapters": 25,
+      "testament": "old",
+      "aliases": [
+        "열왕기하",
+        "왕하"
+      ]
+    },
+    {
+      "id": "1ch",
+      "order": 13,
+      "name": "역대상",
+      "abbr": "대상",
+      "chapters": 29,
+      "testament": "old",
+      "aliases": [
+        "역대상",
+        "대상",
+        "역대기상"
+      ]
+    },
+    {
+      "id": "2ch",
+      "order": 14,
+      "name": "역대하",
+      "abbr": "대하",
+      "chapters": 36,
+      "testament": "old",
+      "aliases": [
+        "역대하",
+        "대하",
+        "역대기하"
+      ]
+    },
+    {
+      "id": "ezr",
+      "order": 15,
+      "name": "에스라",
+      "abbr": "스",
+      "chapters": 10,
+      "testament": "old",
+      "aliases": [
+        "에스라",
+        "스"
+      ]
+    },
+    {
+      "id": "neh",
+      "order": 16,
+      "name": "느헤미야",
+      "abbr": "느",
+      "chapters": 13,
+      "testament": "old",
+      "aliases": [
+        "느헤미야",
+        "느"
+      ]
+    },
+    {
+      "id": "est",
+      "order": 17,
+      "name": "에스더",
+      "abbr": "에",
+      "chapters": 10,
+      "testament": "old",
+      "aliases": [
+        "에스더",
+        "에"
+      ]
+    },
+    {
+      "id": "job",
+      "order": 18,
+      "name": "욥기",
+      "abbr": "욥",
+      "chapters": 42,
+      "testament": "old",
+      "aliases": [
+        "욥기",
+        "욥"
+      ]
+    },
+    {
+      "id": "psa",
+      "order": 19,
+      "name": "시편",
+      "abbr": "시",
+      "chapters": 150,
+      "testament": "old",
+      "aliases": [
+        "시편",
+        "시",
+        "시편서"
+      ]
+    },
+    {
+      "id": "pro",
+      "order": 20,
+      "name": "잠언",
+      "abbr": "잠",
+      "chapters": 31,
+      "testament": "old",
+      "aliases": [
+        "잠언",
+        "잠",
+        "잠언서"
+      ]
+    },
+    {
+      "id": "ecc",
+      "order": 21,
+      "name": "전도서",
+      "abbr": "전",
+      "chapters": 12,
+      "testament": "old",
+      "aliases": [
+        "전도서",
+        "전",
+        "전도"
+      ]
+    },
+    {
+      "id": "sng",
+      "order": 22,
+      "name": "아가",
+      "abbr": "아",
+      "chapters": 8,
+      "testament": "old",
+      "aliases": [
+        "아가",
+        "아",
+        "아가서",
+        "solomon"
+      ]
+    },
+    {
+      "id": "isa",
+      "order": 23,
+      "name": "이사야",
+      "abbr": "사",
+      "chapters": 66,
+      "testament": "old",
+      "aliases": [
+        "이사야",
+        "사"
+      ]
+    },
+    {
+      "id": "jer",
+      "order": 24,
+      "name": "예레미야",
+      "abbr": "렘",
+      "chapters": 52,
+      "testament": "old",
+      "aliases": [
+        "예레미야",
+        "렘"
+      ]
+    },
+    {
+      "id": "lam",
+      "order": 25,
+      "name": "예레미야애가",
+      "abbr": "애",
+      "chapters": 5,
+      "testament": "old",
+      "aliases": [
+        "예레미야애가",
+        "애",
+        "애가"
+      ]
+    },
+    {
+      "id": "ezk",
+      "order": 26,
+      "name": "에스겔",
+      "abbr": "겔",
+      "chapters": 48,
+      "testament": "old",
+      "aliases": [
+        "에스겔",
+        "겔",
+        "에스겔서"
+      ]
+    },
+    {
+      "id": "dan",
+      "order": 27,
+      "name": "다니엘",
+      "abbr": "단",
+      "chapters": 12,
+      "testament": "old",
+      "aliases": [
+        "다니엘",
+        "단"
+      ]
+    },
+    {
+      "id": "hos",
+      "order": 28,
+      "name": "호세아",
+      "abbr": "호",
+      "chapters": 14,
+      "testament": "old",
+      "aliases": [
+        "호세아",
+        "호"
+      ]
+    },
+    {
+      "id": "jol",
+      "order": 29,
+      "name": "요엘",
+      "abbr": "욜",
+      "chapters": 3,
+      "testament": "old",
+      "aliases": [
+        "요엘",
+        "욜"
+      ]
+    },
+    {
+      "id": "amo",
+      "order": 30,
+      "name": "아모스",
+      "abbr": "암",
+      "chapters": 9,
+      "testament": "old",
+      "aliases": [
+        "아모스",
+        "암"
+      ]
+    },
+    {
+      "id": "oba",
+      "order": 31,
+      "name": "오바댜",
+      "abbr": "옵",
+      "chapters": 1,
+      "testament": "old",
+      "aliases": [
+        "오바댜",
+        "옵",
+        "오바다"
+      ]
+    },
+    {
+      "id": "jon",
+      "order": 32,
+      "name": "요나",
+      "abbr": "욘",
+      "chapters": 4,
+      "testament": "old",
+      "aliases": [
+        "요나",
+        "욘"
+      ]
+    },
+    {
+      "id": "mic",
+      "order": 33,
+      "name": "미가",
+      "abbr": "미",
+      "chapters": 7,
+      "testament": "old",
+      "aliases": [
+        "미가",
+        "미"
+      ]
+    },
+    {
+      "id": "nam",
+      "order": 34,
+      "name": "나훔",
+      "abbr": "나",
+      "chapters": 3,
+      "testament": "old",
+      "aliases": [
+        "나훔",
+        "나"
+      ]
+    },
+    {
+      "id": "hab",
+      "order": 35,
+      "name": "하박국",
+      "abbr": "합",
+      "chapters": 3,
+      "testament": "old",
+      "aliases": [
+        "하박국",
+        "합"
+      ]
+    },
+    {
+      "id": "zep",
+      "order": 36,
+      "name": "스바냐",
+      "abbr": "습",
+      "chapters": 3,
+      "testament": "old",
+      "aliases": [
+        "스바냐",
+        "습"
+      ]
+    },
+    {
+      "id": "hag",
+      "order": 37,
+      "name": "학개",
+      "abbr": "학",
+      "chapters": 2,
+      "testament": "old",
+      "aliases": [
+        "학개",
+        "학"
+      ]
+    },
+    {
+      "id": "zec",
+      "order": 38,
+      "name": "스가랴",
+      "abbr": "슥",
+      "chapters": 14,
+      "testament": "old",
+      "aliases": [
+        "스가랴",
+        "슥"
+      ]
+    },
+    {
+      "id": "mal",
+      "order": 39,
+      "name": "말라기",
+      "abbr": "말",
+      "chapters": 4,
+      "testament": "old",
+      "aliases": [
+        "말라기",
+        "말"
+      ]
+    },
+    {
+      "id": "mat",
+      "order": 40,
+      "name": "마태복음",
+      "abbr": "마",
+      "chapters": 28,
+      "testament": "new",
+      "aliases": [
+        "마태복음",
+        "마",
+        "마태"
+      ]
+    },
+    {
+      "id": "mrk",
+      "order": 41,
+      "name": "마가복음",
+      "abbr": "막",
+      "chapters": 16,
+      "testament": "new",
+      "aliases": [
+        "마가복음",
+        "막",
+        "마가"
+      ]
+    },
+    {
+      "id": "luk",
+      "order": 42,
+      "name": "누가복음",
+      "abbr": "눅",
+      "chapters": 24,
+      "testament": "new",
+      "aliases": [
+        "누가복음",
+        "눅",
+        "누가"
+      ]
+    },
+    {
+      "id": "jhn",
+      "order": 43,
+      "name": "요한복음",
+      "abbr": "요",
+      "chapters": 21,
+      "testament": "new",
+      "aliases": [
+        "요한복음",
+        "요",
+        "요한"
+      ]
+    },
+    {
+      "id": "act",
+      "order": 44,
+      "name": "사도행전",
+      "abbr": "행",
+      "chapters": 28,
+      "testament": "new",
+      "aliases": [
+        "사도행전",
+        "행",
+        "행전",
+        "사도"
+      ]
+    },
+    {
+      "id": "rom",
+      "order": 45,
+      "name": "로마서",
+      "abbr": "롬",
+      "chapters": 16,
+      "testament": "new",
+      "aliases": [
+        "로마서",
+        "롬"
+      ]
+    },
+    {
+      "id": "1co",
+      "order": 46,
+      "name": "고린도전서",
+      "abbr": "고전",
+      "chapters": 16,
+      "testament": "new",
+      "aliases": [
+        "고린도전서",
+        "고전",
+        "고린도전"
+      ]
+    },
+    {
+      "id": "2co",
+      "order": 47,
+      "name": "고린도후서",
+      "abbr": "고후",
+      "chapters": 13,
+      "testament": "new",
+      "aliases": [
+        "고린도후서",
+        "고후",
+        "고린도후"
+      ]
+    },
+    {
+      "id": "gal",
+      "order": 48,
+      "name": "갈라디아서",
+      "abbr": "갈",
+      "chapters": 6,
+      "testament": "new",
+      "aliases": [
+        "갈라디아서",
+        "갈"
+      ]
+    },
+    {
+      "id": "eph",
+      "order": 49,
+      "name": "에베소서",
+      "abbr": "엡",
+      "chapters": 6,
+      "testament": "new",
+      "aliases": [
+        "에베소서",
+        "엡"
+      ]
+    },
+    {
+      "id": "php",
+      "order": 50,
+      "name": "빌립보서",
+      "abbr": "빌",
+      "chapters": 4,
+      "testament": "new",
+      "aliases": [
+        "빌립보서",
+        "빌"
+      ]
+    },
+    {
+      "id": "col",
+      "order": 51,
+      "name": "골로새서",
+      "abbr": "골",
+      "chapters": 4,
+      "testament": "new",
+      "aliases": [
+        "골로새서",
+        "골"
+      ]
+    },
+    {
+      "id": "1th",
+      "order": 52,
+      "name": "데살로니가전서",
+      "abbr": "살전",
+      "chapters": 5,
+      "testament": "new",
+      "aliases": [
+        "데살로니가전서",
+        "살전",
+        "데살전"
+      ]
+    },
+    {
+      "id": "2th",
+      "order": 53,
+      "name": "데살로니가후서",
+      "abbr": "살후",
+      "chapters": 3,
+      "testament": "new",
+      "aliases": [
+        "데살로니가후서",
+        "살후",
+        "데살후"
+      ]
+    },
+    {
+      "id": "1ti",
+      "order": 54,
+      "name": "디모데전서",
+      "abbr": "딤전",
+      "chapters": 6,
+      "testament": "new",
+      "aliases": [
+        "디모데전서",
+        "딤전",
+        "디모데전"
+      ]
+    },
+    {
+      "id": "2ti",
+      "order": 55,
+      "name": "디모데후서",
+      "abbr": "딤후",
+      "chapters": 4,
+      "testament": "new",
+      "aliases": [
+        "디모데후서",
+        "딤후",
+        "디모데후"
+      ]
+    },
+    {
+      "id": "tit",
+      "order": 56,
+      "name": "디도서",
+      "abbr": "딛",
+      "chapters": 3,
+      "testament": "new",
+      "aliases": [
+        "디도서",
+        "딛"
+      ]
+    },
+    {
+      "id": "phm",
+      "order": 57,
+      "name": "빌레몬서",
+      "abbr": "몬",
+      "chapters": 1,
+      "testament": "new",
+      "aliases": [
+        "빌레몬서",
+        "몬"
+      ]
+    },
+    {
+      "id": "heb",
+      "order": 58,
+      "name": "히브리서",
+      "abbr": "히",
+      "chapters": 13,
+      "testament": "new",
+      "aliases": [
+        "히브리서",
+        "히"
+      ]
+    },
+    {
+      "id": "jas",
+      "order": 59,
+      "name": "야고보서",
+      "abbr": "약",
+      "chapters": 5,
+      "testament": "new",
+      "aliases": [
+        "야고보서",
+        "약"
+      ]
+    },
+    {
+      "id": "1pe",
+      "order": 60,
+      "name": "베드로전서",
+      "abbr": "벧전",
+      "chapters": 5,
+      "testament": "new",
+      "aliases": [
+        "베드로전서",
+        "벧전",
+        "베드로전"
+      ]
+    },
+    {
+      "id": "2pe",
+      "order": 61,
+      "name": "베드로후서",
+      "abbr": "벧후",
+      "chapters": 3,
+      "testament": "new",
+      "aliases": [
+        "베드로후서",
+        "벧후",
+        "베드로후"
+      ]
+    },
+    {
+      "id": "1jn",
+      "order": 62,
+      "name": "요한일서",
+      "abbr": "요일",
+      "chapters": 5,
+      "testament": "new",
+      "aliases": [
+        "요한일서",
+        "요일",
+        "요한1서"
+      ]
+    },
+    {
+      "id": "2jn",
+      "order": 63,
+      "name": "요한이서",
+      "abbr": "요이",
+      "chapters": 1,
+      "testament": "new",
+      "aliases": [
+        "요한이서",
+        "요이",
+        "요한2서"
+      ]
+    },
+    {
+      "id": "3jn",
+      "order": 64,
+      "name": "요한삼서",
+      "abbr": "요삼",
+      "chapters": 1,
+      "testament": "new",
+      "aliases": [
+        "요한삼서",
+        "요삼",
+        "요한3서"
+      ]
+    },
+    {
+      "id": "jud",
+      "order": 65,
+      "name": "유다서",
+      "abbr": "유",
+      "chapters": 1,
+      "testament": "new",
+      "aliases": [
+        "유다서",
+        "유"
+      ]
+    },
+    {
+      "id": "rev",
+      "order": 66,
+      "name": "요한계시록",
+      "abbr": "계",
+      "chapters": 22,
+      "testament": "new",
+      "aliases": [
+        "요한계시록",
+        "계",
+        "계시록"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "바라 · 성경 찬송가 헬퍼",
+  "short_name": "바라",
+  "description": "예배 중 들리는 찬송과 성경 본문을 마이크로 듣고 자동으로 찾아 주는 도우미",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#12161f",
+  "theme_color": "#12161f",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

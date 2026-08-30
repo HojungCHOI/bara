@@ -1,0 +1,18 @@
+# 의존성
+node_modules/
+
+# 개인 데이터 — 저작권이 있는 찬송가 가사와 성경 본문은 저장소에 올리지 않는다.
+data/hymns.json
+data/bible.json
+data/private/
+
+# 편집기 / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# 로그
+*.log
+npm-debug.log*
