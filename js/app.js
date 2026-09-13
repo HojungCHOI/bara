@@ -12,6 +12,7 @@ import { parseHymnNumber } from './hymn.js';
 import { buildSearchIndex, search } from './search.js';
 import { SpeechListener, isSpeechSupported } from './speech.js';
 import { runDiagnostics, detectPlatform } from './diagnose.js';
+import { TranscriptBuffer, EvidenceAccumulator } from './evidence.js';
 import {
   loadHymns, saveHymns, clearHymns,
   loadBible, saveBible, clearBible,
@@ -55,6 +56,9 @@ const state = {
   wakeLock: null,
   lastQuery: '',
   lastQueryAt: 0,
+  // 합창처럼 인식이 조각날 때 근거를 모아 두는 곳.
+  transcriptBuffer: new TranscriptBuffer({ windowMs: 20000 }),
+  evidence: new EvidenceAccumulator({ halfLifeMs: 12000, threshold: 1.1 }),
 };
 
 /* ---------------------------------------------------------------- 초기화 */
@@ -249,52 +253,118 @@ function handleQuery(rawText, { fromSpeech }) {
   state.lastQuery = text;
   state.lastQueryAt = now;
 
-  const resolved = resolve(text);
+  const resolved = resolve(text, { fromSpeech });
   if (!resolved) {
     if (!fromSpeech) renderNoMatch(text);
+    else reportGathering();
     return;
   }
   render(resolved, text);
   addHistory(resolved);
 }
 
-/** 입력 문장을 하나의 결과로 해석한다. */
-function resolve(text) {
+/** 가사 조각을 모으는 중임을 알려 준다. 합창 중에는 이 상태가 이어진다. */
+function reportGathering() {
+  const ranked = state.evidence.ranked();
+  if (ranked.length === 0) return;
+  const top = ranked[0].item;
+  const label = top.kind === 'hymn' ? `${top.number}장 ${top.title}` : top.title;
+  setStatus(`가사를 모으는 중... (지금은 "${label}" 쪽으로 기울어 있습니다)`);
+}
+
+/** 찬송가·성경 양쪽에서 가사/본문 검색을 돌린다. */
+function searchAll(text) {
+  const hymnHits = state.hymnIndex ? search(state.hymnIndex, text, { limit: 5 }) : [];
+  const bibleHits = state.bibleIndex ? search(state.bibleIndex, text, { limit: 5 }) : [];
+  return [...hymnHits, ...bibleHits].sort((a, b) => b.score - a.score).slice(0, 5);
+}
+
+/** 검색 결과 하나를 화면에 띄울 결과 객체로 바꾼다. */
+function hitToResult(item, extraHits = []) {
+  if (item.kind === 'hymn') return makeHymnResult(item.number, extraHits);
+  return makeBibleResult({
+    book: { name: item.bookName },
+    chapter: item.chapter,
+    verse: item.verse,
+    verseEnd: null,
+    confidence: 0.6,
+  }, extraHits);
+}
+
+/** 확정된 결과를 열었으므로 모아 둔 근거를 비운다. */
+function clearEvidence() {
+  state.evidence.clear();
+  state.transcriptBuffer.clear();
+}
+
+/**
+ * 입력 문장을 하나의 결과로 해석한다.
+ *
+ * 번호나 구절 참조는 한 번에 확정되지만, 가사는 그렇지 않다.
+ * 합창은 인식 결과가 조각나므로 여러 조각의 근거를 모아서 판단한다.
+ */
+function resolve(text, { fromSpeech = false } = {}) {
   const hymnRef = parseHymnNumber(text);
   const bibleRef = parseBibleReference(text, state.bookIndex);
 
   // 찬송가를 명시적으로 말한 경우가 가장 확실하다.
   if (hymnRef && hymnRef.confidence >= 0.9) {
+    clearEvidence();
     return makeHymnResult(hymnRef.number);
   }
 
   // 성경 참조가 확실하면 그쪽을 택한다.
   if (bibleRef && bibleRef.confidence >= 0.85) {
+    clearEvidence();
     return makeBibleResult(bibleRef);
   }
 
   // "305장"처럼 번호만 말했고 성경으로 해석되지 않으면 찬송가로 본다.
-  if (hymnRef) return makeHymnResult(hymnRef.number);
-  if (bibleRef && bibleRef.confidence >= 0.4) return makeBibleResult(bibleRef);
+  if (hymnRef) {
+    clearEvidence();
+    return makeHymnResult(hymnRef.number);
+  }
+  if (bibleRef && bibleRef.confidence >= 0.4) {
+    clearEvidence();
+    return makeBibleResult(bibleRef);
+  }
 
-  // 가사나 본문 내용으로 찾아본다.
-  const hymnHits = state.hymnIndex ? search(state.hymnIndex, text, { limit: 5 }) : [];
-  const bibleHits = state.bibleIndex ? search(state.bibleIndex, text, { limit: 5 }) : [];
-  const hits = [...hymnHits, ...bibleHits].sort((a, b) => b.score - a.score).slice(0, 5);
+  // 여기부터는 가사·본문 내용으로 찾는다.
+  const hits = searchAll(text);
+  const autoOpen = state.settings.autoOpen !== false;
+
+  if (fromSpeech) {
+    state.transcriptBuffer.push(text);
+    state.evidence.add(hits);
+
+    // 조각들을 이어 붙인 문장으로도 찾아본다.
+    // 한 조각씩으로는 안 잡히던 가사가 이어 붙이면 잡히는 경우가 많다.
+    const combined = state.transcriptBuffer.combined();
+    if (combined && combined !== text) {
+      // 이어 붙인 문장은 잡음도 함께 섞이므로 무게를 조금 낮춘다.
+      state.evidence.add(searchAll(combined).map((h) => ({ ...h, score: h.score * 0.8 })));
+    }
+  }
+
+  // 조각 하나로 충분히 확실하면 바로 연다.
+  if (hits.length > 0 && hits[0].score >= 0.55 && autoOpen) {
+    const top = hits[0];
+    clearEvidence();
+    return hitToResult(top.item, hits.slice(1));
+  }
+
+  // 조각 여러 개가 같은 곳을 가리키면 그것을 근거로 연다.
+  if (fromSpeech && autoOpen) {
+    const best = state.evidence.best();
+    if (best) {
+      const rest = state.evidence.ranked().slice(1)
+        .map((e) => ({ item: e.item, score: Math.min(1, e.score) }));
+      clearEvidence();
+      return hitToResult(best.item, rest);
+    }
+  }
 
   if (hits.length === 0) return null;
-  if (hits[0].score >= 0.55 && state.settings.autoOpen !== false) {
-    const top = hits[0].item;
-    return top.kind === 'hymn'
-      ? makeHymnResult(top.number, hits.slice(1))
-      : makeBibleResult({
-          book: { name: top.bookName },
-          chapter: top.chapter,
-          verse: top.verse,
-          verseEnd: null,
-          confidence: hits[0].score,
-        }, hits.slice(1));
-  }
   return { kind: 'candidates', hits };
 }
 

@@ -11,6 +11,7 @@ import { buildBookIndex, parseBibleReference, formatReference } from '../js/bibl
 import { parseHymnNumber } from '../js/hymn.js';
 import { buildSearchIndex, search, bigrams, diceCoefficient, normalizeForSearch } from '../js/search.js';
 import { parseHymnFile, parseCSVRows } from '../js/store.js';
+import { TranscriptBuffer, EvidenceAccumulator } from '../js/evidence.js';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const { books } = JSON.parse(fs.readFileSync(path.join(root, 'data/books.json'), 'utf8'));
@@ -170,6 +171,69 @@ group('찬송가 파일 파싱', () => {
   check('제목 없는 행 제외', parseHymnFile(JSON.stringify([{ number: 1, title: '' }])).length, 0);
 
   check('CSV 줄바꿈 포함 필드', parseCSVRows('a,"b\nc"\n').length, 1);
+});
+
+/* ------------------------------------------------------- 조각 누적 (합창 대응) */
+
+group('인식 조각 버퍼', () => {
+  const t0 = 1_000_000;
+  const buf = new TranscriptBuffer({ windowMs: 10000, maxEntries: 5 });
+
+  buf.push('나 같은', t0);
+  buf.push('죄인', t0 + 1000);
+  check('두 조각 누적', buf.combined(t0 + 1500), '나 같은 죄인');
+
+  buf.push('죄인', t0 + 2000);
+  check('연속 중복은 한 번만', buf.combined(t0 + 2500), '나 같은 죄인');
+
+  check('시간 창 밖은 버림', buf.combined(t0 + 20000), '');
+
+  const buf2 = new TranscriptBuffer({ windowMs: 10000, maxEntries: 2 });
+  buf2.push('가', t0); buf2.push('나', t0); buf2.push('다', t0);
+  check('최대 개수 제한', buf2.combined(t0), '나 다');
+
+  buf2.clear();
+  check('비우기', buf2.size(t0), 0);
+  buf2.push('   ', t0);
+  check('공백은 무시', buf2.size(t0), 0);
+});
+
+group('근거 누적', () => {
+  const t0 = 2_000_000;
+  const A = { id: 'hymn-305', number: 305 };
+  const B = { id: 'hymn-405', number: 405 };
+
+  const acc = new EvidenceAccumulator({ halfLifeMs: 10000, threshold: 1.0 });
+
+  // 조각 하나만으로는 결론을 내지 않는다.
+  acc.add([{ item: A, score: 0.3 }], t0);
+  check('조각 하나로는 판단 보류', acc.best(t0), null);
+
+  // 같은 곡을 가리키는 조각이 쌓이면 문턱을 넘는다.
+  acc.add([{ item: A, score: 0.4 }], t0 + 1000);
+  acc.add([{ item: A, score: 0.4 }], t0 + 2000);
+  const best = acc.best(t0 + 2000);
+  check('조각이 쌓이면 판단', best && best.item.number, 305);
+
+  // 오래되면 잊는다.
+  check('시간이 지나면 근거 소멸', acc.best(t0 + 200000), null);
+
+  // 점수가 너무 낮은 조각은 잡음으로 본다.
+  const acc2 = new EvidenceAccumulator({ minFragmentScore: 0.2, threshold: 0.3 });
+  acc2.add([{ item: A, score: 0.05 }], t0);
+  acc2.add([{ item: A, score: 0.05 }], t0 + 100);
+  check('잡음 조각은 무시', acc2.best(t0 + 100), null);
+
+  // 여러 후보 중 더 많이 지지받은 쪽을 고른다.
+  const acc3 = new EvidenceAccumulator({ halfLifeMs: 10000, threshold: 0.8 });
+  acc3.add([{ item: A, score: 0.3 }, { item: B, score: 0.5 }], t0);
+  acc3.add([{ item: A, score: 0.6 }], t0 + 500);
+  acc3.add([{ item: A, score: 0.3 }], t0 + 900);
+  check('지지가 많은 쪽 선택', acc3.best(t0 + 900).item.number, 305);
+  check('순위 목록', acc3.ranked(t0 + 900).map((e) => e.item.number), [305, 405]);
+
+  acc3.clear();
+  check('비우기', acc3.best(t0 + 900), null);
 });
 
 /* ------------------------------------------------------------------ 결과 */
