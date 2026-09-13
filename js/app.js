@@ -11,6 +11,7 @@ import { buildBookIndex, parseBibleReference, formatReference } from './bible-re
 import { parseHymnNumber } from './hymn.js';
 import { buildSearchIndex, search } from './search.js';
 import { SpeechListener, isSpeechSupported } from './speech.js';
+import { runDiagnostics, detectPlatform } from './diagnose.js';
 import {
   loadHymns, saveHymns, clearHymns,
   loadBible, saveBible, clearBible,
@@ -38,6 +39,8 @@ const el = {
   hymnStatus: $('hymn-status'),
   bibleStatus: $('bible-status'),
   btnClear: $('btn-clear'),
+  btnDiagnose: $('btn-diagnose'),
+  diagnoseResult: $('diagnose-result'),
 };
 
 const state = {
@@ -73,8 +76,16 @@ async function init() {
   wireEvents();
 
   if (!isSpeechSupported()) {
-    setStatus('이 브라우저는 음성인식을 지원하지 않습니다. 아래 칸에 직접 입력해 주세요.', true);
+    const { isIOS, iosBrowser } = detectPlatform();
+    setStatus(
+      isIOS && iosBrowser !== 'Safari'
+        ? `아이패드에서 음성인식이 되는 브라우저는 사파리뿐입니다. 지금은 ${iosBrowser} 에서 열려 있습니다. 같은 주소를 사파리에서 열어 주세요.`
+        : '이 브라우저는 음성인식을 지원하지 않습니다. 아래 칸에 직접 입력해 주세요.',
+      true,
+    );
     el.mic.disabled = true;
+    // 왜 안 되는지 바로 볼 수 있게 진단 결과를 미리 띄워 둔다.
+    onDiagnose();
   }
 }
 
@@ -196,6 +207,8 @@ function wireEvents() {
     if (!el.chkWakeLock.checked) releaseWakeLock();
     else if (state.listener.wantsToListen) requestWakeLock();
   });
+
+  el.btnDiagnose.addEventListener('click', onDiagnose);
 
   el.fileHymns.addEventListener('change', onHymnFile);
   el.fileBible.addEventListener('change', onBibleFile);
@@ -458,6 +471,51 @@ async function onBibleFile(event) {
   } catch (err) {
     el.bibleStatus.innerHTML = `<span class="err">파일을 읽지 못했습니다: ${escapeHTML(err.message)}</span>`;
   }
+}
+
+/* ------------------------------------------------------------------ 진단 */
+
+async function onDiagnose() {
+  el.diagnoseResult.innerHTML = '<p class="hint">확인하는 중...</p>';
+
+  let result;
+  try {
+    result = await runDiagnostics();
+  } catch (err) {
+    el.diagnoseResult.innerHTML =
+      `<p class="hint err">진단 중 오류가 났습니다: ${escapeHTML(err.message)}</p>`;
+    return;
+  }
+
+  const { checks } = result;
+  const problems = checks.filter((c) => c.ok === false);
+  const unknown = checks.filter((c) => c.ok === null);
+
+  const items = checks.map((c) => {
+    const cls = c.ok === true ? 'is-ok' : c.ok === false ? 'is-bad' : 'is-unknown';
+    const mark = c.ok === true ? '\u2713' : c.ok === false ? '\u2715' : '?';
+    // 문제가 있거나 확인이 필요한 항목만 해결 방법을 보여 준다.
+    const fix = c.ok === true || !c.fix ? '' : `<p class="diag-fix">${escapeHTML(c.fix)}</p>`;
+    return `<li><div class="diag-item ${cls}">
+      <div class="diag-head"><span class="diag-mark">${mark}</span><span>${escapeHTML(c.label)}</span></div>
+      <p class="diag-detail">${escapeHTML(c.detail)}</p>
+      ${fix}
+    </div></li>`;
+  }).join('');
+
+  let summary;
+  if (problems.length === 0 && unknown.length === 0) {
+    summary = '막는 것이 없습니다. 마이크 버튼을 누르고 또렷하게 말해 보세요. '
+      + '그래도 안 되면 주변이 너무 조용하거나 마이크가 가려져 있을 수 있습니다.';
+  } else if (problems.length === 0) {
+    summary = '자동으로 확인할 수 있는 항목은 모두 통과했습니다. '
+      + '위에 «?» 로 표시된 항목을 직접 확인해 주세요.';
+  } else {
+    summary = `${problems.length}가지 문제를 찾았습니다. 위의 안내대로 고친 뒤 다시 진단해 보세요.`;
+  }
+
+  el.diagnoseResult.innerHTML =
+    `<ul class="diag-list">${items}</ul><p class="diag-summary">${escapeHTML(summary)}</p>`;
 }
 
 /* -------------------------------------------------------------- 화면 유지 */
