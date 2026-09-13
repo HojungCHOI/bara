@@ -1,5 +1,14 @@
 # 배포 방법
 
+## 지금 열려 있는 주소
+
+**https://hojungchoi.github.io/bara/**
+
+`main` 에 밀면 테스트가 돌고, 통과하면 `gh-pages` 브랜치로 자동 배포된다.
+아래는 signes.kr 에 따로 올릴 때의 절차다.
+
+---
+
 빌드 도구가 없는 정적 사이트라서, 파일을 그대로 올리면 끝납니다.
 
 목표 주소: **`https://signes.kr/app/biblehelper/`**

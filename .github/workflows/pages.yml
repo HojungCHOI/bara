@@ -1,14 +1,13 @@
 name: GitHub Pages 배포
 
+# Pages 는 gh-pages 브랜치를 소스로 켜져 있다.
+# main 에 밀 때마다 테스트를 돌리고, 통과하면 배포용 파일만 추려
+# gh-pages 브랜치로 내보낸다.
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
@@ -28,14 +27,28 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/setup-node@v4
         with:
-          path: '.'
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          node-version: '22'
+
+      - name: 배포용 파일 추리기
+        run: node scripts/build-dist.js
+
+      - name: gh-pages 브랜치로 내보내기
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Jekyll 이 밑줄로 시작하는 파일을 걸러내지 않도록 끈다.
+          touch dist/.nojekyll
+          cd dist
+          git init -q
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -qm "배포 ${GITHUB_SHA:0:7}"
+          # 배포 브랜치는 항상 최신 결과만 담는다. 이력은 main 에 있다.
+          git push -f "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:gh-pages

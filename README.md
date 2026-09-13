@@ -19,7 +19,9 @@
 
 ## 바로 써 보기
 
-배포 주소: `https://signes.kr/app/biblehelper`
+**https://hojungchoi.github.io/bara/** — 지금 열립니다.
+
+signes.kr 배포 예정 주소: `https://signes.kr/app/biblehelper`
 
 1. 마이크 버튼을 누르고 권한을 허용합니다.
 2. 찬송가 번호나 성경 구절을 말합니다.
