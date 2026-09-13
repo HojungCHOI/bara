@@ -12,6 +12,7 @@ import { parseHymnNumber } from '../js/hymn.js';
 import { buildSearchIndex, search, bigrams, diceCoefficient, normalizeForSearch } from '../js/search.js';
 import { parseHymnFile, parseCSVRows } from '../js/store.js';
 import { TranscriptBuffer, EvidenceAccumulator } from '../js/evidence.js';
+import { shouldRevive, STALE_MS } from '../js/speech.js';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const { books } = JSON.parse(fs.readFileSync(path.join(root, 'data/books.json'), 'utf8'));
@@ -250,6 +251,35 @@ group('근거 누적', () => {
 
   acc3.clear();
   check('비우기', acc3.best(t0 + 900), null);
+});
+
+/* --------------------------------------------------- 멈춘 음성인식 되살리기 */
+
+group('음성인식 멈춤 감지', () => {
+  const t = 5_000_000;
+
+  // 듣고 있지 않으면 되살릴 일이 없다.
+  check('꺼져 있으면 안 되살림',
+    shouldRevive({ listening: false, now: t + 60000, lastEventAt: t }), false);
+
+  // 아직 아무 일도 없었으면 기준이 없다.
+  check('기준 시각 없으면 보류',
+    shouldRevive({ listening: true, now: t, lastEventAt: 0 }), false);
+
+  // 방금 소식이 있었으면 살아 있는 것이다.
+  check('방금 소식 있으면 그대로',
+    shouldRevive({ listening: true, now: t + 1000, lastEventAt: t }), false);
+  check('기준 직전까지는 그대로',
+    shouldRevive({ listening: true, now: t + STALE_MS - 1, lastEventAt: t }), false);
+
+  // 오래 조용하면 죽은 것으로 본다. onend 가 안 불리는 경우를 잡는다.
+  check('기준 넘으면 되살림',
+    shouldRevive({ listening: true, now: t + STALE_MS, lastEventAt: t }), true);
+  check('한참 지났으면 되살림',
+    shouldRevive({ listening: true, now: t + 120000, lastEventAt: t }), true);
+
+  check('기준 시간 직접 지정',
+    shouldRevive({ listening: true, now: t + 3000, lastEventAt: t, staleMs: 2000 }), true);
 });
 
 /* ------------------------------------------------------------------ 결과 */

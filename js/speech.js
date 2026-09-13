@@ -21,6 +21,28 @@ export function isSpeechSupported() {
 /** 결과 한 번 없이 이만큼 연속으로 끊기면 설정 문제로 본다. */
 const SILENT_FAILURE_THRESHOLD = 3;
 
+/** 이만큼 아무 소식이 없으면 죽은 것으로 보고 되살린다. */
+export const STALE_MS = 9000;
+
+/** 감시 주기. */
+const WATCHDOG_MS = 3000;
+
+/** 되살리기를 이만큼 반복해도 결과가 없으면 사람이 눌러 줘야 한다. */
+const REVIVE_GIVEUP = 3;
+
+/**
+ * 지금 음성인식을 강제로 되살려야 하는지 판단한다.
+ *
+ * 사파리는 시간이 지나면 인식을 조용히 끝내 버리는데, 이때 onend 가
+ * 불리지 않는 경우가 있다. 그러면 자동 재시작이 걸리지 않아 영영 멈춘다.
+ * 마지막 소식 이후 흐른 시간으로 이를 가려낸다.
+ */
+export function shouldRevive({ listening, now, lastEventAt, staleMs = STALE_MS }) {
+  if (!listening) return false;
+  if (!lastEventAt) return false;
+  return now - lastEventAt >= staleMs;
+}
+
 /** 이 시간 안에 끝나면 "말을 듣지도 못하고 끝났다"고 본다. */
 const TOO_FAST_MS = 1200;
 
@@ -33,13 +55,14 @@ export class SpeechListener {
    * @param {(state:string)=>void} options.onState   'listening' | 'stopped'
    * @param {(message:string, fatal:boolean)=>void} options.onError
    */
-  constructor({ lang = 'ko-KR', onFinal, onInterim, onState, onError, onStats } = {}) {
+  constructor({ lang = 'ko-KR', onFinal, onInterim, onState, onError, onStats, onStalled } = {}) {
     this.lang = lang;
     this.onFinal = onFinal || (() => {});
     this.onInterim = onInterim || (() => {});
     this.onState = onState || (() => {});
     this.onError = onError || (() => {});
     this.onStats = onStats || (() => {});
+    this.onStalled = onStalled || (() => {});
 
     this.platform = detectPlatform();
     this.recognition = null;
@@ -55,7 +78,66 @@ export class SpeechListener {
 
     // 실제 기기에서 무엇이 일어나는지 확인하기 위한 집계.
     // 기기가 손에 없으면 이 숫자가 유일한 단서다.
-    this.stats = { starts: 0, results: 0, errors: 0, lastError: null };
+    this.stats = { starts: 0, results: 0, errors: 0, lastError: null, revives: 0 };
+
+    /** 마지막으로 무슨 일이든 일어난 시각. 멈춤 감지의 기준이다. */
+    this.lastEventAt = 0;
+    this.watchdogTimer = null;
+    /** 되살렸는데도 결과가 없던 횟수. */
+    this.revivesWithoutResult = 0;
+  }
+
+  /** 무슨 일이든 일어났음을 기록한다. */
+  _touch() {
+    this.lastEventAt = Date.now();
+  }
+
+  /** 멈췄는지 주기적으로 살핀다. onend 가 안 불리는 경우를 잡기 위함이다. */
+  _startWatchdog() {
+    clearInterval(this.watchdogTimer);
+    this.watchdogTimer = setInterval(() => {
+      if (!this.wantsToListen) return;
+      if (!shouldRevive({
+        listening: this.wantsToListen,
+        now: Date.now(),
+        lastEventAt: this.lastEventAt,
+      })) return;
+
+      this.stats.revives += 1;
+      this.revivesWithoutResult += 1;
+      this._emitStats();
+
+      // 되살리기를 먼저 하고 알린다. 순서가 반대면 되살리며 나오는
+      // '듣고 있습니다' 안내가 멈춤 안내를 덮어써 버린다.
+      this._forceRestart();
+
+      if (this.revivesWithoutResult >= REVIVE_GIVEUP) {
+        // 자동으로는 되살아나지 않는다. 사파리는 사용자가 직접 눌러야
+        // 다시 열어 주는 경우가 있어서, 여기서부터는 사람 손이 필요하다.
+        this.onStalled();
+      }
+    }, WATCHDOG_MS);
+  }
+
+  _stopWatchdog() {
+    clearInterval(this.watchdogTimer);
+    this.watchdogTimer = null;
+  }
+
+  /** 기존 인식을 버리고 새로 연다. */
+  _forceRestart() {
+    if (this.recognition) {
+      try { this.recognition.abort(); } catch { /* 이미 죽었으면 무시 */ }
+      this.recognition = null;
+    }
+    this._touch();
+    this._createAndStart();
+  }
+
+  /** 화면이 다시 켜졌을 때처럼 밖에서 되살리고 싶을 때 부른다. */
+  revive() {
+    if (!this.wantsToListen) return;
+    this._forceRestart();
   }
 
   _emitStats() {
@@ -77,12 +159,16 @@ export class SpeechListener {
     this.sawAnyResult = false;
     this.emptyEndCount = 0;
     this.lastErrorCode = null;
+    this.revivesWithoutResult = 0;
+    this._touch();
     this._createAndStart();
+    this._startWatchdog();
   }
 
   stop() {
     this.wantsToListen = false;
     clearTimeout(this.restartTimer);
+    this._stopWatchdog();
     if (this.recognition) {
       try {
         this.recognition.stop();
@@ -119,6 +205,8 @@ export class SpeechListener {
 
     recognition.onresult = (event) => {
       this.sawAnyResult = true;
+      this.revivesWithoutResult = 0;
+      this._touch();
       this.stats.results += 1;
       this._emitStats();
       this.emptyEndCount = 0;
@@ -139,6 +227,7 @@ export class SpeechListener {
 
     recognition.onerror = (event) => {
       const code = event.error;
+      this._touch();
       this.lastErrorCode = code;
       this.stats.errors += 1;
       this.stats.lastError = code;
@@ -184,6 +273,7 @@ export class SpeechListener {
     };
 
     recognition.onend = () => {
+      this._touch();
       if (!this.wantsToListen) {
         this.onState('stopped');
         return;
@@ -215,6 +305,7 @@ export class SpeechListener {
       recognition.start();
       this.recognition = recognition;
       this.startedAt = Date.now();
+      this._touch();
       this.stats.starts += 1;
       this._emitStats();
       this.onState('listening');

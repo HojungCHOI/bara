@@ -646,3 +646,30 @@ main {
 /* 좁은 단에서 버튼 글자가 쪼개지지 않게 한다. */
 .btn-primary { white-space: nowrap; padding: 0 1.1rem; }
 .manual input { min-width: 0; }
+
+/* 듣기가 멈췄을 때 사람이 직접 눌러 되살리는 버튼.
+   사파리는 자동 재시작을 거부하고 사용자의 손길을 요구할 때가 있다. */
+.btn-revive {
+  width: 100%;
+  min-height: 56px;
+  padding: 0 1rem;
+  border: 1px solid var(--danger);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  animation: revive-pulse 1.6s ease-in-out infinite;
+}
+.btn-revive[hidden] { display: none; }
+.btn-revive:active { transform: scale(0.98); }
+
+@keyframes revive-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.72; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-revive { animation: none; }
+}

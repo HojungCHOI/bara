@@ -43,6 +43,7 @@ const el = {
   btnDiagnose: $('btn-diagnose'),
   heardList: $('heard-list'),
   micStats: $('mic-stats'),
+  btnRevive: $('btn-revive'),
   appVersion: $('app-version'),
   resultEmpty: $('result-empty'),
   keypadNum: $('keypad-num'),
@@ -181,6 +182,11 @@ function wireEvents() {
       else releaseWakeLock();
     },
     onStats: (s) => renderMicStats(s),
+    onStalled: () => {
+      // 자동으로는 되살아나지 않는 상태. 사람이 눌러 줘야 한다.
+      el.btnRevive.hidden = false;
+      setStatus('듣기가 멈췄습니다. 아래 버튼을 눌러 주세요.', true);
+    },
     onError: (message, fatal) => {
       setStatus(message, true);
       if (fatal) {
@@ -191,7 +197,16 @@ function wireEvents() {
     },
   });
 
-  el.mic.addEventListener('click', () => state.listener.toggle());
+  el.mic.addEventListener('click', () => {
+    el.btnRevive.hidden = true;
+    state.listener.toggle();
+  });
+
+  el.btnRevive.addEventListener('click', () => {
+    el.btnRevive.hidden = true;
+    setStatus('다시 듣고 있습니다.');
+    state.listener.revive();
+  });
 
   el.formManual.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -243,6 +258,8 @@ function wireEvents() {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && state.listener?.wantsToListen) {
       requestWakeLock();
+      // 화면이 잠긴 사이 사파리가 인식을 끊어 놓는다. 돌아오면 되살린다.
+      state.listener.revive();
     }
   });
 }
@@ -416,12 +433,15 @@ function makeBibleResult(ref, extraHits = []) {
 /** 듣기 상태를 숫자로 보여 준다. 실제 기기에서 무엇이 막히는지 알 단서다. */
 function renderMicStats(s) {
   if (!el.micStats) return;
+  // 결과가 들어오기 시작하면 되살리기 버튼은 필요 없다.
+  if (s.results > 0 && el.btnRevive && !el.btnRevive.hidden) el.btnRevive.hidden = true;
   if (!s.listening && s.starts === 0) {
     el.micStats.hidden = true;
     return;
   }
   el.micStats.hidden = false;
   const parts = [`인식 ${s.results}회`, `연결 ${s.starts}회`];
+  if (s.revives > 0) parts.push(`되살림 ${s.revives}회`);
   if (s.errors > 0) parts.push(`<span class="warn">오류 ${s.errors}회 (${escapeHTML(s.lastError || '')})</span>`);
   el.micStats.innerHTML = parts.join(' · ');
 }
