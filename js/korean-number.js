@@ -111,7 +111,10 @@ export function toNumber(text) {
  */
 export function normalizeNumeralsInText(text) {
   if (!text) return '';
-  const numeral = '[영공일이삼사오육륙칠팔구십백천만억]+';
+  // 음성인식은 "삼백 오장" 처럼 수사 중간에 공백을 넣기도 한다.
+  // 공백으로 끊긴 조각까지 한 덩어리로 묶어야 305 가 5 로 잘못 읽히지 않는다.
+  const digit = '[영공일이삼사오육륙칠팔구십백천만억]';
+  const numeral = `${digit}+(?:\\s+${digit}+)*`;
   const native = '(?:한|두|세|네|다섯|여섯|일곱|여덟|아홉|열|스물|서른|마흔|쉰|예순|일흔|여든|아흔)+';
   const unit = '(?=\\s*(?:장|절|편|권))';
 

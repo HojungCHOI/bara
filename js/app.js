@@ -41,6 +41,8 @@ const el = {
   bibleStatus: $('bible-status'),
   btnClear: $('btn-clear'),
   btnDiagnose: $('btn-diagnose'),
+  keypadNum: $('keypad-num'),
+  keypadGrid: document.querySelector('.keypad-grid'),
   diagnoseResult: $('diagnose-result'),
 };
 
@@ -56,6 +58,7 @@ const state = {
   wakeLock: null,
   lastQuery: '',
   lastQueryAt: 0,
+  keypadDigits: '',
   // 합창처럼 인식이 조각날 때 근거를 모아 두는 곳.
   transcriptBuffer: new TranscriptBuffer({ windowMs: 20000 }),
   evidence: new EvidenceAccumulator({ halfLifeMs: 12000, threshold: 1.1 }),
@@ -213,6 +216,9 @@ function wireEvents() {
   });
 
   el.btnDiagnose.addEventListener('click', onDiagnose);
+
+  el.keypadGrid.addEventListener('click', onKeypadClick);
+  renderKeypad();
 
   el.fileHymns.addEventListener('change', onHymnFile);
   el.fileBible.addEventListener('change', onBibleFile);
@@ -541,6 +547,52 @@ async function onBibleFile(event) {
   } catch (err) {
     el.bibleStatus.innerHTML = `<span class="err">파일을 읽지 못했습니다: ${escapeHTML(err.message)}</span>`;
   }
+}
+
+/* ---------------------------------------------------------------- 번호 키패드 */
+
+/** 찬송가 번호는 세 자리를 넘지 않는다. */
+const KEYPAD_MAX_DIGITS = 3;
+
+function onKeypadClick(event) {
+  const key = event.target.closest('.key')?.dataset.key;
+  if (!key) return;
+
+  if (key === 'del') {
+    state.keypadDigits = state.keypadDigits.slice(0, -1);
+    renderKeypad();
+    return;
+  }
+  if (key === 'go') {
+    submitKeypad();
+    return;
+  }
+
+  if (state.keypadDigits.length >= KEYPAD_MAX_DIGITS) return;
+  // 맨 앞의 0 은 의미가 없다.
+  if (state.keypadDigits === '' && key === '0') return;
+
+  state.keypadDigits += key;
+  renderKeypad();
+}
+
+function submitKeypad() {
+  const digits = state.keypadDigits;
+  if (!digits) return;
+  handleQuery(`찬송가 ${parseInt(digits, 10)}장`, { fromSpeech: false });
+  state.keypadDigits = '';
+  renderKeypad();
+}
+
+function renderKeypad() {
+  const digits = state.keypadDigits;
+  const empty = digits.length === 0;
+  el.keypadNum.textContent = empty ? '– – –' : digits;
+  el.keypadNum.classList.toggle('is-empty', empty);
+
+  // 입력이 없으면 지우기·열기를 눌러도 할 일이 없다.
+  el.keypadGrid.querySelector('[data-key="del"]').disabled = empty;
+  el.keypadGrid.querySelector('[data-key="go"]').disabled = empty;
 }
 
 /* ------------------------------------------------------------------ 진단 */

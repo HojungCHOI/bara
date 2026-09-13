@@ -34,11 +34,34 @@
     <p id="transcript" class="transcript" aria-live="off"></p>
   </section>
 
-  <!-- 직접 입력 (마이크가 안 될 때의 대비책) -->
+  <!-- 번호 누르기 (인도자 말을 놓쳤을 때 가장 빠른 길) -->
+  <section class="keypad" aria-label="찬송가 번호 누르기">
+    <p class="keypad-caption">찬송가 번호를 누르세요</p>
+    <div class="keypad-display">
+      <span id="keypad-num" class="keypad-num" aria-live="polite">– – –</span>
+      <span class="keypad-unit">장</span>
+    </div>
+    <div class="keypad-grid">
+      <button class="key" type="button" data-key="1">1</button>
+      <button class="key" type="button" data-key="2">2</button>
+      <button class="key" type="button" data-key="3">3</button>
+      <button class="key" type="button" data-key="4">4</button>
+      <button class="key" type="button" data-key="5">5</button>
+      <button class="key" type="button" data-key="6">6</button>
+      <button class="key" type="button" data-key="7">7</button>
+      <button class="key" type="button" data-key="8">8</button>
+      <button class="key" type="button" data-key="9">9</button>
+      <button class="key key-sub" type="button" data-key="del" aria-label="지우기">←</button>
+      <button class="key" type="button" data-key="0">0</button>
+      <button class="key key-go" type="button" data-key="go" aria-label="열기">열기</button>
+    </div>
+  </section>
+
+  <!-- 직접 입력 (성경 구절이나 가사로 찾을 때) -->
   <section class="manual" aria-label="직접 찾기">
     <form id="form-manual" autocomplete="off">
       <input id="input-manual" type="search" inputmode="search"
-             placeholder="예: 요한복음 3장 16절 / 찬송가 305장 / 가사 일부"
+             placeholder="예: 요한복음 3장 16절 / 가사 일부"
              aria-label="직접 찾기">
       <button type="submit" class="btn-primary">찾기</button>
     </form>

@@ -455,3 +455,77 @@ main {
   line-height: 1.6;
   word-break: keep-all;
 }
+
+/* 번호 키패드 — 예배 중 흔들리는 손으로도 정확히 누를 수 있어야 한다. */
+.keypad {
+  padding: 0.5rem 0 1rem;
+  text-align: center;
+}
+
+.keypad-caption {
+  margin: 0 0 0.4rem;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.keypad-display {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 3.2rem;
+  margin-bottom: 0.75rem;
+}
+
+.keypad-num {
+  font-size: 2.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.keypad-num.is-empty { color: var(--text-dim); opacity: 0.45; }
+
+.keypad-unit { color: var(--text-dim); font-size: 1.3rem; font-weight: 600; }
+
+.keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.key {
+  min-height: 68px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.7rem;
+  font-weight: 600;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: transform 0.08s ease, background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.key:active { transform: scale(0.95); background: var(--surface-2); }
+.key:disabled { opacity: 0.35; cursor: default; }
+
+.key-sub { font-size: 1.5rem; color: var(--text-dim); }
+
+.key-go {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: #fff;
+  font-size: 1.1rem;
+}
+.key-go:active { background: var(--accent); }
+.key-go:disabled { background: var(--surface); border-color: var(--line); color: var(--text-dim); }
+
+@media (max-width: 360px) {
+  .key { min-height: 58px; font-size: 1.45rem; }
+  .keypad-num { font-size: 2.3rem; }
+}
