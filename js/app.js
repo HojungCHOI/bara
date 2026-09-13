@@ -41,6 +41,8 @@ const el = {
   bibleStatus: $('bible-status'),
   btnClear: $('btn-clear'),
   btnDiagnose: $('btn-diagnose'),
+  heardList: $('heard-list'),
+  resultEmpty: $('result-empty'),
   keypadNum: $('keypad-num'),
   keypadGrid: document.querySelector('.keypad-grid'),
   diagnoseResult: $('diagnose-result'),
@@ -58,6 +60,7 @@ const state = {
   wakeLock: null,
   lastQuery: '',
   lastQueryAt: 0,
+  heard: [],
   keypadDigits: '',
   // 합창처럼 인식이 조각날 때 근거를 모아 두는 곳.
   transcriptBuffer: new TranscriptBuffer({ windowMs: 20000 }),
@@ -160,6 +163,7 @@ function wireEvents() {
     lang: 'ko-KR',
     onFinal: (text) => {
       el.transcript.textContent = text;
+      addHeard(text);
       handleQuery(text, { fromSpeech: true });
     },
     onInterim: (text) => { el.transcript.textContent = text; },
@@ -399,7 +403,25 @@ function makeBibleResult(ref, extraHits = []) {
 
 /* ------------------------------------------------------------------ 화면 */
 
+/** 인식한 말을 왼쪽 목록에 쌓는다. 무엇을 잘못 들었는지 눈으로 볼 수 있다. */
+function addHeard(text) {
+  const clean = String(text || '').trim();
+  if (!clean) return;
+  if (state.heard[0] === clean) return;
+
+  state.heard = [clean, ...state.heard].slice(0, 8);
+  el.heardList.innerHTML = state.heard
+    .map((t, i) => `<li class="${i === 0 ? 'is-latest' : ''}">${escapeHTML(t)}</li>`)
+    .join('');
+}
+
+/** 오른쪽 단의 "아직 없습니다" 안내를 켜고 끈다. */
+function showResultEmpty(show) {
+  if (el.resultEmpty) el.resultEmpty.hidden = !show;
+}
+
 function render(result, queryText) {
+  showResultEmpty(false);
   if (result.kind === 'candidates') {
     el.result.innerHTML = `
       <div class="card">
@@ -465,6 +487,7 @@ function bindCandidates() {
 }
 
 function renderNoMatch(text) {
+  showResultEmpty(false);
   el.result.innerHTML = `
     <div class="card">
       <p class="card-kind">찾지 못했습니다</p>

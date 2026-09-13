@@ -31,50 +31,67 @@
     <p id="status" class="status" role="status" aria-live="polite">
       마이크 버튼을 누르면 들리는 찬송과 성경 본문을 찾아 드립니다.
     </p>
-    <p id="transcript" class="transcript" aria-live="off"></p>
   </section>
 
-  <!-- 번호 누르기 (인도자 말을 놓쳤을 때 가장 빠른 길) -->
-  <section class="keypad" aria-label="찬송가 번호 누르기">
-    <p class="keypad-caption">찬송가 번호를 누르세요</p>
-    <div class="keypad-display">
-      <span id="keypad-num" class="keypad-num" aria-live="polite">– – –</span>
-      <span class="keypad-unit">장</span>
+  <!-- 왼쪽: 들린 말과 입력 / 오른쪽: 찾은 결과 -->
+  <div class="panes">
+
+    <div class="pane pane-input">
+      <h2 class="pane-title">들린 말</h2>
+
+      <p id="transcript" class="transcript" aria-live="off"></p>
+      <ul id="heard-list" class="heard-list" aria-label="인식한 말"></ul>
+
+      <!-- 번호 누르기 (인도자 말을 놓쳤을 때 가장 빠른 길) -->
+      <section class="keypad" aria-label="찬송가 번호 누르기">
+        <p class="keypad-caption">찬송가 번호를 누르세요</p>
+        <div class="keypad-display">
+          <span id="keypad-num" class="keypad-num" aria-live="polite">– – –</span>
+          <span class="keypad-unit">장</span>
+        </div>
+        <div class="keypad-grid">
+          <button class="key" type="button" data-key="1">1</button>
+          <button class="key" type="button" data-key="2">2</button>
+          <button class="key" type="button" data-key="3">3</button>
+          <button class="key" type="button" data-key="4">4</button>
+          <button class="key" type="button" data-key="5">5</button>
+          <button class="key" type="button" data-key="6">6</button>
+          <button class="key" type="button" data-key="7">7</button>
+          <button class="key" type="button" data-key="8">8</button>
+          <button class="key" type="button" data-key="9">9</button>
+          <button class="key key-sub" type="button" data-key="del" aria-label="지우기">←</button>
+          <button class="key" type="button" data-key="0">0</button>
+          <button class="key key-go" type="button" data-key="go" aria-label="열기">열기</button>
+        </div>
+      </section>
+
+      <!-- 직접 입력 (성경 구절이나 가사로 찾을 때) -->
+      <section class="manual" aria-label="직접 찾기">
+        <form id="form-manual" autocomplete="off">
+          <input id="input-manual" type="search" inputmode="search"
+                 placeholder="예: 요한복음 3장 16절 / 가사 일부"
+                 aria-label="직접 찾기">
+          <button type="submit" class="btn-primary">찾기</button>
+        </form>
+      </section>
     </div>
-    <div class="keypad-grid">
-      <button class="key" type="button" data-key="1">1</button>
-      <button class="key" type="button" data-key="2">2</button>
-      <button class="key" type="button" data-key="3">3</button>
-      <button class="key" type="button" data-key="4">4</button>
-      <button class="key" type="button" data-key="5">5</button>
-      <button class="key" type="button" data-key="6">6</button>
-      <button class="key" type="button" data-key="7">7</button>
-      <button class="key" type="button" data-key="8">8</button>
-      <button class="key" type="button" data-key="9">9</button>
-      <button class="key key-sub" type="button" data-key="del" aria-label="지우기">←</button>
-      <button class="key" type="button" data-key="0">0</button>
-      <button class="key key-go" type="button" data-key="go" aria-label="열기">열기</button>
+
+    <div class="pane pane-output">
+      <h2 class="pane-title">찾은 것</h2>
+
+      <section id="result" class="result" aria-live="polite"></section>
+      <p id="result-empty" class="pane-empty">
+        아직 찾은 것이 없습니다.<br>
+        찬송가 번호나 성경 구절을 말하거나 눌러 보세요.
+      </p>
+
+      <section class="history" aria-label="최근 기록">
+        <h3 class="section-title">최근</h3>
+        <ul id="history-list" class="history-list"></ul>
+      </section>
     </div>
-  </section>
 
-  <!-- 직접 입력 (성경 구절이나 가사로 찾을 때) -->
-  <section class="manual" aria-label="직접 찾기">
-    <form id="form-manual" autocomplete="off">
-      <input id="input-manual" type="search" inputmode="search"
-             placeholder="예: 요한복음 3장 16절 / 가사 일부"
-             aria-label="직접 찾기">
-      <button type="submit" class="btn-primary">찾기</button>
-    </form>
-  </section>
-
-  <!-- 결과 영역 -->
-  <section id="result" class="result" aria-live="polite"></section>
-
-  <!-- 최근 기록 -->
-  <section class="history" aria-label="최근 기록">
-    <h2 class="section-title">최근</h2>
-    <ul id="history-list" class="history-list"></ul>
-  </section>
+  </div>
 </main>
 
 <!-- 설정 패널 -->

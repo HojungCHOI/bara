@@ -39,7 +39,7 @@ body {
 }
 
 main {
-  max-width: 720px;
+  max-width: 1120px;
   margin: 0 auto;
   padding: 0 1rem 4rem;
 }
@@ -53,7 +53,7 @@ main {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  max-width: 720px;
+  max-width: 1120px;
   margin: 0 auto;
   padding: 0.75rem 1rem;
   background: color-mix(in srgb, var(--bg) 88%, transparent);
@@ -528,4 +528,98 @@ main {
 @media (max-width: 360px) {
   .key { min-height: 58px; font-size: 1.45rem; }
   .keypad-num { font-size: 2.3rem; }
+}
+
+/* ── 두 단 배치 ────────────────────────────────────────────────
+   왼쪽은 들어온 것(들린 말·누른 번호), 오른쪽은 찾은 결과.
+   좁은 화면에서는 위아래로 쌓인다. */
+
+.panes {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (min-width: 820px) {
+  .panes {
+    grid-template-columns: minmax(300px, 5fr) minmax(320px, 6fr);
+    gap: 1.75rem;
+  }
+  /* 넓은 화면에서는 결과가 스크롤을 따라다니게 둔다. */
+  .pane-output { position: sticky; top: 4.5rem; }
+}
+
+.pane { min-width: 0; }
+
+.pane-title {
+  margin: 0 0 0.6rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.pane-empty {
+  margin: 0;
+  padding: 1.5rem 1.25rem;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  text-align: center;
+  word-break: keep-all;
+}
+.pane-empty[hidden] { display: none; }
+
+/* 왼쪽 단에서는 들린 말이 주인공이라 가운데 정렬을 푼다. */
+.pane-input .transcript {
+  max-width: none;
+  min-height: 2.4em;
+  margin-bottom: 0.5rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 1.1rem;
+  opacity: 1;
+  text-align: left;
+}
+.pane-input .transcript:empty::after {
+  content: "마이크를 켜면 여기에 들린 말이 나타납니다.";
+  color: var(--text-dim);
+  font-size: 0.92rem;
+}
+
+/* 인식한 말 목록 — 무엇을 잘못 들었는지 눈으로 확인할 수 있게 남긴다. */
+.heard-list {
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+  max-height: 8.5rem;
+  overflow-y: auto;
+}
+.heard-list:empty { display: none; }
+.heard-list li {
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid var(--line);
+  color: var(--text-dim);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+.heard-list li + li { margin-top: 0.2rem; }
+.heard-list li.is-latest { border-left-color: var(--accent); color: var(--text); }
+
+.pane-input .keypad { padding-top: 0; }
+.pane-input .manual { padding-bottom: 0; }
+
+/* 두 단일 때는 듣기 영역을 조금 줄여 결과가 더 보이게 한다. */
+@media (min-width: 820px) {
+  .listen { padding: 1rem 0 1.25rem; }
+  .mic { width: 132px; height: 132px; }
+  .mic-icon { width: 28px; height: 42px; margin-bottom: 22px; }
 }
