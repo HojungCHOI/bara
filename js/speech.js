@@ -33,12 +33,13 @@ export class SpeechListener {
    * @param {(state:string)=>void} options.onState   'listening' | 'stopped'
    * @param {(message:string, fatal:boolean)=>void} options.onError
    */
-  constructor({ lang = 'ko-KR', onFinal, onInterim, onState, onError } = {}) {
+  constructor({ lang = 'ko-KR', onFinal, onInterim, onState, onError, onStats } = {}) {
     this.lang = lang;
     this.onFinal = onFinal || (() => {});
     this.onInterim = onInterim || (() => {});
     this.onState = onState || (() => {});
     this.onError = onError || (() => {});
+    this.onStats = onStats || (() => {});
 
     this.platform = detectPlatform();
     this.recognition = null;
@@ -51,6 +52,14 @@ export class SpeechListener {
     this.emptyEndCount = 0;
     this.startedAt = 0;
     this.lastErrorCode = null;
+
+    // 실제 기기에서 무엇이 일어나는지 확인하기 위한 집계.
+    // 기기가 손에 없으면 이 숫자가 유일한 단서다.
+    this.stats = { starts: 0, results: 0, errors: 0, lastError: null };
+  }
+
+  _emitStats() {
+    this.onStats({ ...this.stats, listening: this.wantsToListen });
   }
 
   start() {
@@ -100,14 +109,18 @@ export class SpeechListener {
     // 매번 새 인스턴스를 만든다. 재사용하면 사파리에서 상태가 꼬인다.
     const recognition = new SpeechRecognitionCtor();
     recognition.lang = this.lang;
-    // 사파리는 continuous 를 제대로 지원하지 않는다. 켜 두면 오히려 불안정해서,
-    // 한 마디씩 받고 onend 에서 바로 다시 켜는 편이 안정적이다.
-    recognition.continuous = !this.platform.isIOS;
+    // iOS 에서도 continuous 를 켠다.
+    // 꺼 두면 한 마디마다 인식이 끝나고 다시 켜야 하는데, 사파리는 그 재시작에
+    // 0.5~1초가 걸린다. 예배처럼 말이 이어지는 자리에서는 그 틈에 들어온 말이
+    // 통째로 사라져서 "잡히다 안 잡히다" 하게 된다.
+    recognition.continuous = true;
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
 
     recognition.onresult = (event) => {
       this.sawAnyResult = true;
+      this.stats.results += 1;
+      this._emitStats();
       this.emptyEndCount = 0;
 
       let interim = '';
@@ -127,6 +140,9 @@ export class SpeechListener {
     recognition.onerror = (event) => {
       const code = event.error;
       this.lastErrorCode = code;
+      this.stats.errors += 1;
+      this.stats.lastError = code;
+      this._emitStats();
 
       if (code === 'no-speech' || code === 'aborted') {
         // 말이 없었을 뿐이다. 자동 재시작에 맡긴다.
@@ -192,13 +208,15 @@ export class SpeechListener {
         return;
       }
 
-      this._scheduleRestart(250);
+      this._scheduleRestart(80);
     };
 
     try {
       recognition.start();
       this.recognition = recognition;
       this.startedAt = Date.now();
+      this.stats.starts += 1;
+      this._emitStats();
       this.onState('listening');
     } catch {
       // 이전 인스턴스가 아직 살아 있으면 InvalidStateError 가 난다. 잠시 후 재시도.

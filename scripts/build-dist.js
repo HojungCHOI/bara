@@ -46,6 +46,40 @@ for (const [from, to] of EXTRA) {
   fs.copyFileSync(path.join(ROOT, from), dst);
 }
 
+/* ── 캐시 무력화 ──────────────────────────────────────────────
+   사파리는 CSS 와 JS 를 오래 붙들고 있어서, 고쳐 배포해도 예전 화면이
+   그대로 보이는 일이 잦다. 파일 주소 뒤에 배포마다 달라지는 표식을 붙여
+   브라우저가 다른 파일로 인식하게 만든다. */
+
+/** 배포마다 달라지는 표식. CI 에서는 커밋 해시, 로컬에서는 시각. */
+const STAMP = (process.env.GITHUB_SHA || '').slice(0, 7)
+  || new Date().toISOString().replace(/\D/g, '').slice(0, 14);
+
+function stampAssets() {
+  // index.html 의 stylesheet 와 module script 주소에 표식을 붙인다.
+  const indexPath = path.join(DIST, 'index.html');
+  let html = fs.readFileSync(indexPath, 'utf8');
+  html = html
+    .replace(/(href=")(\.\/css\/[^"?]+)(")/g, `$1$2?v=${STAMP}$3`)
+    .replace(/(src=")(\.\/js\/[^"?]+)(")/g, `$1$2?v=${STAMP}$3`)
+    // 어느 판인지 화면에서 확인할 수 있게 남긴다.
+    .replace('</head>', `<meta name="bara-version" content="${STAMP}">\n</head>`);
+  fs.writeFileSync(indexPath, html);
+
+  // app.js 주소만 바꾸면 그 안에서 불러오는 모듈은 여전히 옛것이 쓰인다.
+  // 모듈끼리 서로 부르는 주소에도 같은 표식을 붙여야 전부 새로 받는다.
+  const jsDir = path.join(DIST, 'js');
+  for (const name of fs.readdirSync(jsDir)) {
+    if (!name.endsWith('.js')) continue;
+    const file = path.join(jsDir, name);
+    const code = fs.readFileSync(file, 'utf8')
+      .replace(/(from\s+['"])(\.\/[^'"?]+\.js)(['"])/g, `$1$2?v=${STAMP}$3`);
+    fs.writeFileSync(file, code);
+  }
+}
+
+stampAssets();
+
 /** dist 안의 모든 파일을 나열한다. */
 function walk(dir) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -61,5 +95,5 @@ console.log('\ndist/ 준비 완료:');
 for (const f of files) {
   console.log('  dist' + path.relative(DIST, f).split(path.sep).join('/').padStart(0).replace(/^/, '/'));
 }
-console.log(`\n총 ${files.length}개 파일, ${(bytes / 1024).toFixed(0)}KB`);
+console.log(`\n총 ${files.length}개 파일, ${(bytes / 1024).toFixed(0)}KB · 판 ${STAMP}`);
 console.log("\n이제 dist/ '안의' 파일들을 서버의 /app/biblehelper/ 에 올리세요.\n");

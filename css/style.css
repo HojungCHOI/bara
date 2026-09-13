@@ -623,3 +623,13 @@ main {
   .mic { width: 132px; height: 132px; }
   .mic-icon { width: 28px; height: 42px; margin-bottom: 22px; }
 }
+
+/* 듣기 상태 — 기기가 내 손에 없을 때 무슨 일이 벌어지는지 알려 주는 유일한 단서. */
+.mic-stats {
+  margin: 0 0 0.6rem;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+.mic-stats[hidden] { display: none; }
+.mic-stats .warn { color: var(--danger); }

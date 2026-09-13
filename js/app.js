@@ -42,6 +42,8 @@ const el = {
   btnClear: $('btn-clear'),
   btnDiagnose: $('btn-diagnose'),
   heardList: $('heard-list'),
+  micStats: $('mic-stats'),
+  appVersion: $('app-version'),
   resultEmpty: $('result-empty'),
   keypadNum: $('keypad-num'),
   keypadGrid: document.querySelector('.keypad-grid'),
@@ -71,6 +73,7 @@ const state = {
 
 async function init() {
   applySettings();
+  showVersion();
 
   try {
     const res = await fetch(new URL('../data/books.json', import.meta.url));
@@ -177,6 +180,7 @@ function wireEvents() {
       if (listening) requestWakeLock();
       else releaseWakeLock();
     },
+    onStats: (s) => renderMicStats(s),
     onError: (message, fatal) => {
       setStatus(message, true);
       if (fatal) {
@@ -241,6 +245,12 @@ function wireEvents() {
       requestWakeLock();
     }
   });
+}
+
+/** 지금 화면이 어느 판인지 보여 준다. 캐시된 옛 화면을 구별하기 위함이다. */
+function showVersion() {
+  const meta = document.querySelector('meta[name="bara-version"]');
+  if (el.appVersion) el.appVersion.textContent = `판 ${meta?.content || '개발 중'}`;
 }
 
 function applySettings() {
@@ -402,6 +412,19 @@ function makeBibleResult(ref, extraHits = []) {
 }
 
 /* ------------------------------------------------------------------ 화면 */
+
+/** 듣기 상태를 숫자로 보여 준다. 실제 기기에서 무엇이 막히는지 알 단서다. */
+function renderMicStats(s) {
+  if (!el.micStats) return;
+  if (!s.listening && s.starts === 0) {
+    el.micStats.hidden = true;
+    return;
+  }
+  el.micStats.hidden = false;
+  const parts = [`인식 ${s.results}회`, `연결 ${s.starts}회`];
+  if (s.errors > 0) parts.push(`<span class="warn">오류 ${s.errors}회 (${escapeHTML(s.lastError || '')})</span>`);
+  el.micStats.innerHTML = parts.join(' · ');
+}
 
 /** 인식한 말을 왼쪽 목록에 쌓는다. 무엇을 잘못 들었는지 눈으로 볼 수 있다. */
 function addHeard(text) {
