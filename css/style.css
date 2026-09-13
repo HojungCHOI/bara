@@ -541,10 +541,10 @@ main {
   align-items: start;
 }
 
-@media (min-width: 820px) {
+@media (min-width: 700px) {
   .panes {
-    grid-template-columns: minmax(300px, 5fr) minmax(320px, 6fr);
-    gap: 1.75rem;
+    grid-template-columns: minmax(260px, 5fr) minmax(280px, 6fr);
+    gap: 1.25rem;
   }
   /* 넓은 화면에서는 결과가 스크롤을 따라다니게 둔다. */
   .pane-output { position: sticky; top: 4.5rem; }
@@ -618,7 +618,7 @@ main {
 .pane-input .manual { padding-bottom: 0; }
 
 /* 두 단일 때는 듣기 영역을 조금 줄여 결과가 더 보이게 한다. */
-@media (min-width: 820px) {
+@media (min-width: 700px) {
   .listen { padding: 1rem 0 1.25rem; }
   .mic { width: 132px; height: 132px; }
   .mic-icon { width: 28px; height: 42px; margin-bottom: 22px; }
