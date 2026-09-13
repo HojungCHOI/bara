@@ -1,0 +1,675 @@
+/* 바라 — 성경 찬송가 헬퍼
+   예배당은 대체로 어둡고, 손에는 아이패드 하나뿐이다.
+   어두운 배경 + 큰 글씨 + 큰 터치 영역을 기본으로 잡는다. */
+
+:root {
+  --bg: #12161f;
+  --surface: #1b212e;
+  --surface-2: #232b3b;
+  --line: #303a4d;
+  --text: #eef2f9;
+  --text-dim: #9aa7bd;
+  --accent: #6ea8fe;
+  --accent-strong: #3d82f7;
+  --danger: #ef6b6b;
+  --ok: #5fd08a;
+  --radius: 16px;
+  --font-scale: 1;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+               "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  font-size: calc(17px * var(--font-scale));
+  line-height: 1.65;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+           env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 1rem 4rem;
+}
+
+/* 상단 바 */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.brand {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.topbar-actions { display: flex; gap: 0.5rem; }
+
+.icon-btn {
+  min-height: 44px;
+  padding: 0 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.icon-btn:hover { color: var(--text); border-color: var(--accent); }
+
+/* 듣기 영역 */
+.listen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.5rem 0 1rem;
+  text-align: center;
+}
+
+.mic {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 168px;
+  height: 168px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(160deg, var(--surface-2), var(--surface));
+  box-shadow: 0 0 0 1px var(--line), 0 12px 32px rgba(0, 0, 0, 0.45);
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.25s ease;
+}
+.mic:active { transform: scale(0.97); }
+
+.mic-icon {
+  width: 34px;
+  height: 50px;
+  /* 아래로 뻗는 받침대(::after)가 글자와 겹치지 않도록 여백을 준다. */
+  margin-bottom: 24px;
+  border-radius: 999px;
+  background: var(--text-dim);
+  position: relative;
+  transition: background 0.25s ease;
+}
+.mic-icon::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -16px;
+  width: 3px;
+  height: 14px;
+  transform: translateX(-50%);
+  background: var(--text-dim);
+  transition: background 0.25s ease;
+}
+
+/* 듣는 중 상태 */
+.mic.is-listening {
+  box-shadow: 0 0 0 1px var(--accent), 0 0 40px rgba(110, 168, 254, 0.35);
+  animation: pulse 2s ease-in-out infinite;
+}
+.mic.is-listening .mic-icon,
+.mic.is-listening .mic-icon::after { background: var(--accent); }
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 1px var(--accent), 0 0 24px rgba(110, 168, 254, 0.28); }
+  50%      { box-shadow: 0 0 0 1px var(--accent), 0 0 52px rgba(110, 168, 254, 0.5); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mic.is-listening { animation: none; }
+}
+
+.status { margin: 0; color: var(--text-dim); font-size: 0.95rem; }
+.status.is-error { color: var(--danger); }
+
+.transcript {
+  margin: 0;
+  min-height: 1.6em;
+  max-width: 40ch;
+  color: var(--text);
+  font-size: 1.05rem;
+  opacity: 0.75;
+  word-break: keep-all;
+}
+
+/* 직접 입력 */
+.manual { padding: 0.5rem 0 1.25rem; }
+.manual form { display: flex; gap: 0.5rem; }
+
+.manual input {
+  flex: 1;
+  min-height: 52px;
+  padding: 0 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+}
+.manual input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.manual input::placeholder { color: var(--text-dim); }
+
+.btn-primary {
+  min-height: 52px;
+  padding: 0 1.4rem;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--accent-strong);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+.btn-primary:hover { background: var(--accent); }
+
+.btn-danger {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--danger);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--danger);
+  font-size: 0.95rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* 결과 카드 */
+.result:empty { display: none; }
+
+.card {
+  margin-bottom: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.card.is-primary { border-color: var(--accent); }
+
+.card-kind {
+  margin: 0 0 0.35rem;
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.card-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.85rem;
+  font-weight: 700;
+  line-height: 1.3;
+  word-break: keep-all;
+}
+
+.card-sub { margin: 0 0 0.75rem; color: var(--text-dim); font-size: 0.95rem; }
+
+.card-body {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.85;
+  white-space: pre-wrap;
+  word-break: keep-all;
+}
+
+.verse-no {
+  margin-right: 0.35rem;
+  color: var(--accent);
+  font-size: 0.8em;
+  font-weight: 700;
+  vertical-align: 0.25em;
+}
+
+.card-note {
+  margin: 0.75rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* 후보 목록 */
+.candidates { margin: 0; padding: 0; list-style: none; }
+.candidates li + li { margin-top: 0.5rem; }
+
+.candidate-btn {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 52px;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.candidate-btn:hover { border-color: var(--accent); }
+.candidate-num { color: var(--accent); font-weight: 700; }
+.candidate-score { margin-left: auto; color: var(--text-dim); font-size: 0.8rem; }
+
+/* 최근 기록 */
+.section-title {
+  margin: 1.5rem 0 0.6rem;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.history-list { margin: 0; padding: 0; list-style: none; }
+.history-list:empty::after {
+  content: "아직 기록이 없습니다.";
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+.history-list li + li { margin-top: 0.4rem; }
+
+.history-btn {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.history-btn:hover { color: var(--text); border-color: var(--line); }
+
+/* 설정 시트 */
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+}
+.sheet[hidden] { display: none; }
+
+.sheet-inner {
+  width: 100%;
+  max-width: 620px;
+  max-height: 88dvh;
+  overflow-y: auto;
+  padding: 1.25rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
+  border-radius: 20px 20px 0 0;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+}
+
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+.sheet-head h2 { margin: 0; font-size: 1.15rem; }
+
+.sheet h3 { margin: 1rem 0 0.4rem; font-size: 1rem; }
+.sheet hr { margin: 1.25rem 0; border: none; border-top: 1px solid var(--line); }
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 48px;
+}
+.setting-row label { color: var(--text); font-size: 0.98rem; }
+.setting-row input[type="range"] { flex: 1; max-width: 220px; accent-color: var(--accent); }
+.setting-row input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--accent); }
+
+.hint { margin: 0.4rem 0; color: var(--text-dim); font-size: 0.88rem; line-height: 1.6; }
+.hint a { color: var(--accent); }
+
+.sheet input[type="file"] {
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.6rem;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.ok { color: var(--ok); }
+.err { color: var(--danger); }
+
+/* 밝은 곳에서 쓰는 경우 */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f7f9fc;
+    --surface: #ffffff;
+    --surface-2: #eef2f8;
+    --line: #d5dde9;
+    --text: #17202e;
+    --text-dim: #5d6a80;
+    --accent: #2f6fdc;
+    --accent-strong: #2f6fdc;
+    color-scheme: light;
+  }
+  .mic { box-shadow: 0 0 0 1px var(--line), 0 10px 26px rgba(23, 32, 46, 0.12); }
+}
+
+/* 진단 결과 */
+.btn-secondary {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.95rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+.btn-secondary:hover { background: var(--surface-2); }
+
+.diag-list { margin: 0.75rem 0 0; padding: 0; list-style: none; }
+.diag-list li + li { margin-top: 0.5rem; }
+
+.diag-item {
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-left-width: 4px;
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+.diag-item.is-ok { border-left-color: var(--ok); }
+.diag-item.is-bad { border-left-color: var(--danger); }
+.diag-item.is-unknown { border-left-color: var(--text-dim); }
+
+.diag-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.diag-mark { font-size: 1rem; }
+.diag-item.is-ok .diag-mark { color: var(--ok); }
+.diag-item.is-bad .diag-mark { color: var(--danger); }
+.diag-item.is-unknown .diag-mark { color: var(--text-dim); }
+
+.diag-detail { margin: 0.25rem 0 0; color: var(--text-dim); font-size: 0.85rem; line-height: 1.5; }
+.diag-fix {
+  margin: 0.45rem 0 0;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+.diag-summary {
+  margin: 0.75rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+/* 번호 키패드 — 예배 중 흔들리는 손으로도 정확히 누를 수 있어야 한다. */
+.keypad {
+  padding: 0.5rem 0 1rem;
+  text-align: center;
+}
+
+.keypad-caption {
+  margin: 0 0 0.4rem;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.keypad-display {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 3.2rem;
+  margin-bottom: 0.75rem;
+}
+
+.keypad-num {
+  font-size: 2.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.keypad-num.is-empty { color: var(--text-dim); opacity: 0.45; }
+
+.keypad-unit { color: var(--text-dim); font-size: 1.3rem; font-weight: 600; }
+
+.keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.key {
+  min-height: 68px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.7rem;
+  font-weight: 600;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: transform 0.08s ease, background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.key:active { transform: scale(0.95); background: var(--surface-2); }
+.key:disabled { opacity: 0.35; cursor: default; }
+
+.key-sub { font-size: 1.5rem; color: var(--text-dim); }
+
+.key-go {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: #fff;
+  font-size: 1.1rem;
+}
+.key-go:active { background: var(--accent); }
+.key-go:disabled { background: var(--surface); border-color: var(--line); color: var(--text-dim); }
+
+@media (max-width: 360px) {
+  .key { min-height: 58px; font-size: 1.45rem; }
+  .keypad-num { font-size: 2.3rem; }
+}
+
+/* ── 두 단 배치 ────────────────────────────────────────────────
+   왼쪽은 들어온 것(들린 말·누른 번호), 오른쪽은 찾은 결과.
+   좁은 화면에서는 위아래로 쌓인다. */
+
+.panes {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (min-width: 700px) {
+  .panes {
+    grid-template-columns: minmax(260px, 5fr) minmax(280px, 6fr);
+    gap: 1.25rem;
+  }
+  /* 넓은 화면에서는 결과가 스크롤을 따라다니게 둔다. */
+  .pane-output { position: sticky; top: 4.5rem; }
+}
+
+.pane { min-width: 0; }
+
+.pane-title {
+  margin: 0 0 0.6rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.pane-empty {
+  margin: 0;
+  padding: 1.5rem 1.25rem;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  text-align: center;
+  word-break: keep-all;
+}
+.pane-empty[hidden] { display: none; }
+
+/* 왼쪽 단에서는 들린 말이 주인공이라 가운데 정렬을 푼다. */
+.pane-input .transcript {
+  max-width: none;
+  min-height: 2.4em;
+  margin-bottom: 0.5rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 1.1rem;
+  opacity: 1;
+  text-align: left;
+}
+.pane-input .transcript:empty::after {
+  content: "마이크를 켜면 여기에 들린 말이 나타납니다.";
+  color: var(--text-dim);
+  font-size: 0.92rem;
+}
+
+/* 인식한 말 목록 — 무엇을 잘못 들었는지 눈으로 확인할 수 있게 남긴다. */
+.heard-list {
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+  max-height: 8.5rem;
+  overflow-y: auto;
+}
+.heard-list:empty { display: none; }
+.heard-list li {
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid var(--line);
+  color: var(--text-dim);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+.heard-list li + li { margin-top: 0.2rem; }
+.heard-list li.is-latest { border-left-color: var(--accent); color: var(--text); }
+
+.pane-input .keypad { padding-top: 0; }
+.pane-input .manual { padding-bottom: 0; }
+
+/* 두 단일 때는 듣기 영역을 조금 줄여 결과가 더 보이게 한다. */
+@media (min-width: 700px) {
+  .listen { padding: 1rem 0 1.25rem; }
+  .mic { width: 132px; height: 132px; }
+  .mic-icon { width: 28px; height: 42px; margin-bottom: 22px; }
+}
+
+/* 듣기 상태 — 기기가 내 손에 없을 때 무슨 일이 벌어지는지 알려 주는 유일한 단서. */
+.mic-stats {
+  margin: 0 0 0.6rem;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+.mic-stats[hidden] { display: none; }
+.mic-stats .warn { color: var(--danger); }
+
+/* 마이크는 왼쪽 단 안에 들어간다. 단 폭에 맞춰 여백을 줄인다. */
+.pane-input .listen { padding: 0.25rem 0 1rem; gap: 0.7rem; }
+.pane-input .listen .status { font-size: 0.9rem; }
+
+/* 모바일(한 단)에서는 마이크가 화면 첫 요소이므로 조금 더 크게 둔다. */
+@media (max-width: 699px) {
+  .pane-input .listen { padding: 0.5rem 0 1.25rem; }
+}
+
+/* 좁은 단에서 버튼 글자가 쪼개지지 않게 한다. */
+.btn-primary { white-space: nowrap; padding: 0 1.1rem; }
+.manual input { min-width: 0; }
+
+/* 듣기가 멈췄을 때 사람이 직접 눌러 되살리는 버튼.
+   사파리는 자동 재시작을 거부하고 사용자의 손길을 요구할 때가 있다. */
+.btn-revive {
+  width: 100%;
+  min-height: 56px;
+  padding: 0 1rem;
+  border: 1px solid var(--danger);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  animation: revive-pulse 1.6s ease-in-out infinite;
+}
+.btn-revive[hidden] { display: none; }
+.btn-revive:active { transform: scale(0.98); }
+
+@keyframes revive-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.72; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-revive { animation: none; }
+}

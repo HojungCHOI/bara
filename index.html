@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12161f">
+<meta name="description" content="예배 중 들리는 찬송과 성경 본문을 마이크로 듣고 자동으로 찾아 주는 도우미">
+<title>바라 · 성경 찬송가 헬퍼</title>
+<link rel="stylesheet" href="./css/style.css?v=ff3265f">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="바라">
+<meta name="bara-version" content="ff3265f">
+</head>
+<body>
+
+<header class="topbar">
+  <h1 class="brand">바라</h1>
+  <div class="topbar-actions">
+    <button id="btn-settings" class="icon-btn" type="button" aria-label="설정">설정</button>
+  </div>
+</header>
+
+<main>
+  <!-- 왼쪽: 들린 말과 입력 / 오른쪽: 찾은 결과 -->
+  <div class="panes">
+
+    <div class="pane pane-input">
+      <h2 class="pane-title">음성 인식</h2>
+
+      <section class="listen" aria-label="음성 인식">
+        <button id="btn-mic" class="mic" type="button" aria-pressed="false">
+          <span class="mic-icon" aria-hidden="true"></span>
+          <span class="mic-label">듣기 시작</span>
+        </button>
+        <p id="status" class="status" role="status" aria-live="polite">
+          마이크 버튼을 누르면 들리는 찬송과 성경 본문을 찾아 드립니다.
+        </p>
+        <button id="btn-revive" class="btn-revive" type="button" hidden>
+          듣기가 멈췄습니다 · 눌러서 다시 듣기
+        </button>
+      </section>
+
+      <p id="transcript" class="transcript" aria-live="off"></p>
+      <p id="mic-stats" class="mic-stats" hidden></p>
+      <ul id="heard-list" class="heard-list" aria-label="인식한 말"></ul>
+
+      <!-- 번호 누르기 (인도자 말을 놓쳤을 때 가장 빠른 길) -->
+      <section class="keypad" aria-label="찬송가 번호 누르기">
+        <p class="keypad-caption">찬송가 번호를 누르세요</p>
+        <div class="keypad-display">
+          <span id="keypad-num" class="keypad-num" aria-live="polite">– – –</span>
+          <span class="keypad-unit">장</span>
+        </div>
+        <div class="keypad-grid">
+          <button class="key" type="button" data-key="1">1</button>
+          <button class="key" type="button" data-key="2">2</button>
+          <button class="key" type="button" data-key="3">3</button>
+          <button class="key" type="button" data-key="4">4</button>
+          <button class="key" type="button" data-key="5">5</button>
+          <button class="key" type="button" data-key="6">6</button>
+          <button class="key" type="button" data-key="7">7</button>
+          <button class="key" type="button" data-key="8">8</button>
+          <button class="key" type="button" data-key="9">9</button>
+          <button class="key key-sub" type="button" data-key="del" aria-label="지우기">←</button>
+          <button class="key" type="button" data-key="0">0</button>
+          <button class="key key-go" type="button" data-key="go" aria-label="열기">열기</button>
+        </div>
+      </section>
+
+      <!-- 직접 입력 (성경 구절이나 가사로 찾을 때) -->
+      <section class="manual" aria-label="직접 찾기">
+        <form id="form-manual" autocomplete="off">
+          <input id="input-manual" type="search" inputmode="search"
+                 placeholder="예: 요한복음 3장 16절 / 가사 일부"
+                 aria-label="직접 찾기">
+          <button type="submit" class="btn-primary">찾기</button>
+        </form>
+      </section>
+    </div>
+
+    <div class="pane pane-output">
+      <h2 class="pane-title">찾은 것</h2>
+
+      <section id="result" class="result" aria-live="polite"></section>
+      <p id="result-empty" class="pane-empty">
+        아직 찾은 것이 없습니다.<br>
+        찬송가 번호나 성경 구절을 말하거나 눌러 보세요.
+      </p>
+
+      <section class="history" aria-label="최근 기록">
+        <h3 class="section-title">최근</h3>
+        <ul id="history-list" class="history-list"></ul>
+      </section>
+    </div>
+
+  </div>
+</main>
+
+<!-- 설정 패널 -->
+<div id="settings" class="sheet" hidden>
+  <div class="sheet-inner" role="dialog" aria-modal="true" aria-label="설정">
+    <div class="sheet-head">
+      <h2>설정</h2>
+      <button id="btn-close-settings" class="icon-btn" type="button" aria-label="닫기">닫기</button>
+    </div>
+
+    <div class="setting-row">
+      <label for="range-font">글자 크기</label>
+      <input id="range-font" type="range" min="0.8" max="2" step="0.1" value="1">
+    </div>
+
+    <div class="setting-row">
+      <label for="chk-autoopen">인식되면 바로 열기</label>
+      <input id="chk-autoopen" type="checkbox" checked>
+    </div>
+
+    <div class="setting-row">
+      <label for="chk-wakelock">화면 켜 두기</label>
+      <input id="chk-wakelock" type="checkbox" checked>
+    </div>
+
+    <hr>
+
+    <h3>음성인식이 안 될 때</h3>
+    <p class="hint">
+      마이크가 반응하지 않으면 아래 버튼을 눌러 보세요.
+      무엇이 막고 있는지 확인해 드립니다.
+    </p>
+    <button id="btn-diagnose" class="btn-secondary" type="button">진단하기</button>
+    <div id="diagnose-result"></div>
+
+    <hr>
+
+    <h3>내 찬송가 불러오기</h3>
+    <p class="hint">
+      찬송가 번호와 가사는 판본마다 달라서 앱에 미리 넣어 두지 않았습니다.
+      본인 교회에서 쓰는 찬송가 목록 파일(JSON 또는 CSV)을 불러오면
+      이 기기에만 저장됩니다.
+    </p>
+    <input id="file-hymns" type="file" accept=".json,.csv,text/csv,application/json">
+    <p id="hymn-status" class="hint"></p>
+    <p class="hint">
+      <a href="./data/hymns.template.csv" download>CSV 서식 내려받기</a> ·
+      <a href="./docs/DATA.md">데이터 형식 설명</a>
+    </p>
+
+    <hr>
+
+    <h3>성경 본문 불러오기</h3>
+    <p class="hint">
+      본문 없이도 "요한복음 3장 16절"을 인식해 어디를 펴야 하는지 알려 줍니다.
+      본문 파일을 넣으면 구절 내용까지 화면에 보여 줍니다.
+    </p>
+    <input id="file-bible" type="file" accept=".json,application/json">
+    <p id="bible-status" class="hint"></p>
+
+    <hr>
+    <button id="btn-clear" class="btn-danger" type="button">저장된 데이터 지우기</button>
+    <p id="app-version" class="hint" style="text-align:center;margin-top:1rem"></p>
+  </div>
+</div>
+
+<script type="module" src="./js/app.js?v=ff3265f"></script>
+</body>
+</html>

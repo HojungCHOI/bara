@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="바라">
+  <rect width="512" height="512" rx="112" fill="#12161f"/>
+  <!-- 펼친 책 -->
+  <path d="M96 154c48-20 104-20 152 6v210c-48-26-104-26-152-6z" fill="#6ea8fe" opacity="0.92"/>
+  <path d="M416 154c-48-20-104-20-152 6v210c48-26 104-26 152-6z" fill="#3d82f7" opacity="0.92"/>
+  <path d="M256 160v210" stroke="#12161f" stroke-width="14" stroke-linecap="round"/>
+  <!-- 소리 파형 -->
+  <g stroke="#eef2f9" stroke-width="16" stroke-linecap="round" opacity="0.85">
+    <path d="M150 250v28"/><path d="M196 232v64"/><path d="M316 232v64"/><path d="M362 250v28"/>
+  </g>
+</svg>
