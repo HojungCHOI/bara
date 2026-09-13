@@ -22,22 +22,21 @@
 </header>
 
 <main>
-  <!-- 듣기 영역 -->
-  <section class="listen" aria-label="음성 인식">
-    <button id="btn-mic" class="mic" type="button" aria-pressed="false">
-      <span class="mic-icon" aria-hidden="true"></span>
-      <span class="mic-label">듣기 시작</span>
-    </button>
-    <p id="status" class="status" role="status" aria-live="polite">
-      마이크 버튼을 누르면 들리는 찬송과 성경 본문을 찾아 드립니다.
-    </p>
-  </section>
-
   <!-- 왼쪽: 들린 말과 입력 / 오른쪽: 찾은 결과 -->
   <div class="panes">
 
     <div class="pane pane-input">
-      <h2 class="pane-title">들린 말</h2>
+      <h2 class="pane-title">음성 인식</h2>
+
+      <section class="listen" aria-label="음성 인식">
+        <button id="btn-mic" class="mic" type="button" aria-pressed="false">
+          <span class="mic-icon" aria-hidden="true"></span>
+          <span class="mic-label">듣기 시작</span>
+        </button>
+        <p id="status" class="status" role="status" aria-live="polite">
+          마이크 버튼을 누르면 들리는 찬송과 성경 본문을 찾아 드립니다.
+        </p>
+      </section>
 
       <p id="transcript" class="transcript" aria-live="off"></p>
       <p id="mic-stats" class="mic-stats" hidden></p>

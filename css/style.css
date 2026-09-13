@@ -633,3 +633,16 @@ main {
 }
 .mic-stats[hidden] { display: none; }
 .mic-stats .warn { color: var(--danger); }
+
+/* 마이크는 왼쪽 단 안에 들어간다. 단 폭에 맞춰 여백을 줄인다. */
+.pane-input .listen { padding: 0.25rem 0 1rem; gap: 0.7rem; }
+.pane-input .listen .status { font-size: 0.9rem; }
+
+/* 모바일(한 단)에서는 마이크가 화면 첫 요소이므로 조금 더 크게 둔다. */
+@media (max-width: 699px) {
+  .pane-input .listen { padding: 0.5rem 0 1.25rem; }
+}
+
+/* 좁은 단에서 버튼 글자가 쪼개지지 않게 한다. */
+.btn-primary { white-space: nowrap; padding: 0 1.1rem; }
+.manual input { min-width: 0; }
