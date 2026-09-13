@@ -2,7 +2,7 @@ name: GitHub Pages 배포
 
 on:
   push:
-    branches: [main, master, claude/test-coverage-analysis-2o18c7]
+    branches: [main]
   workflow_dispatch:
 
 permissions:

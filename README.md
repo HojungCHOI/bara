@@ -55,12 +55,14 @@
 빌드 도구가 없습니다. 순수 HTML/CSS/JavaScript(ES 모듈)라 파일을 열면 바로 돌아갑니다.
 
 ```bash
-# 로컬 서버 (음성인식은 localhost 또는 HTTPS 필요)
-npm start          # python3 -m http.server 8080
-
-# 테스트
-npm test           # node test/run.js
+npm start          # 개발 서버 → http://localhost:8080
+npm test           # 테스트 74건
+npm run dist       # 배포용 dist/ 만들기
 ```
+
+셋 다 node 만 있으면 윈도우·맥·리눅스에서 똑같이 동작합니다.
+마이크는 `localhost` 또는 HTTPS 에서만 열리므로,
+`index.html` 을 더블클릭하지 말고 `npm start` 로 여세요.
 
 ### 구조
 
@@ -76,6 +78,8 @@ js/search.js            2-gram 유사도 검색 (받아쓰기 오차 허용)
 js/store.js             localStorage 저장 + 파일 형식 파싱
 data/books.json         성경 66권 이름·약칭·장 수 (본문 없음)
 test/run.js             테스트 (의존성 없음)
+scripts/serve.js        개발 서버
+scripts/build-dist.js   배포용 파일 추리기
 ```
 
 ### 배포
@@ -85,9 +89,11 @@ test/run.js             테스트 (의존성 없음)
 **하위 경로에 두어도 그대로 동작합니다.**
 
 ```bash
-rsync -av --exclude='.git' --exclude='node_modules' --exclude='test' \
-      ./ 서버:/var/www/signes.kr/app/biblehelper/
+npm run dist
 ```
+
+`dist/` 폴더가 만들어집니다. 그 **안의 파일들**을 FTP로 서버의
+`/app/biblehelper/` 에 올리면 됩니다. 자세한 절차는 [`docs/DEPLOY.md`](docs/DEPLOY.md).
 
 ## 문서
 
